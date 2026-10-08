@@ -18,7 +18,7 @@ export const INITIAL_INCIDENTS = [
     severity: 'MEDIUM',
     status: 'Assigned',
     statusCode: 'assigned', // submitted | verified | assigned | in_progress | resolved | rejected
-    reporterName: 'Rashmi G',
+    reporterName: 'K. Suresh',
     reporterPhone: '+91 98765 43210',
     location: 'Anekal Main Road, Kammasandra Agrahara, Bengaluru, Karnataka, 562106',
     coordinates: [12.7303, 77.7096],
@@ -91,7 +91,7 @@ export const INITIAL_INCIDENTS = [
     severity: 'CRITICAL',
     status: 'In Progress',
     statusCode: 'in_progress',
-    reporterName: 'Rashmi G',
+    reporterName: 'Ward Resident (Indiranagar)',
     reporterPhone: '+91 83108 13290',
     location: '100ft Road, Near Metro Pillar 84, Indiranagar, Bengaluru, 560038',
     coordinates: [12.9784, 77.6408],

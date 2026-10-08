@@ -25,7 +25,14 @@ export function App() {
   const getSavedSession = () => {
     try {
       const s = localStorage.getItem('resquick_session');
-      if (s) return JSON.parse(s);
+      if (s) {
+        const parsed = JSON.parse(s);
+        if (parsed?.currentUser?.name === 'Apoorva P Keretot') {
+          parsed.currentUser.name = 'Citizen Resident';
+          parsed.currentUser.phone = '';
+        }
+        return parsed;
+      }
     } catch (e) {}
     return null;
   };
@@ -37,12 +44,14 @@ export function App() {
   const [loginModalDefaultTab, setLoginModalDefaultTab] = useState('citizen');
 
   const [currentUser, setCurrentUser] = useState(
-    initialSession?.currentUser || {
-      role: 'citizen',
-      name: 'Apoorva P Keretot',
-      phone: '8880803338',
-      language: 'kn'
-    }
+    initialSession?.currentUser && initialSession.currentUser.name !== 'Apoorva P Keretot'
+      ? initialSession.currentUser
+      : {
+          role: 'citizen',
+          name: 'Citizen Resident',
+          phone: '',
+          language: 'kn'
+        }
   );
 
   const [currentOfficer, setCurrentOfficer] = useState(
@@ -66,6 +75,13 @@ export function App() {
 
   useEffect(() => {
     document.body.className = `theme-${currentTheme}`;
+    if (currentTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
+    }
     localStorage.setItem('resquick_theme', currentTheme);
   }, [currentTheme]);
 

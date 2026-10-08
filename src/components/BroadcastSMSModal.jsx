@@ -27,7 +27,7 @@ export function BroadcastSMSModal({
 }) {
   // Preloaded Indian mobile numbers requested by user
   const [recipients, setRecipients] = useState([
-    { id: 1, name: 'Lead Resident (Rashmi)', phone: '8310813290', location: 'Indiranagar' },
+    { id: 1, name: 'Ward Representative (S. Kumar)', phone: '8310813290', location: 'Indiranagar' },
     { id: 2, name: 'Outer Ring Observer (Karthik)', phone: '6366258223', location: 'Hebbal' },
     { id: 3, name: 'Market Community (Farhan)', phone: '8880803338', location: 'Shivajinagar' },
     { id: 4, name: 'Industrial Belt Ward (Priya)', phone: '8792698913', location: 'Peenya' }

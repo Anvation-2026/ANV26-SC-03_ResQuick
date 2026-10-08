@@ -39,14 +39,16 @@ export function CitizenPortal({
 }) {
   const t = TRANSLATIONS[currentLanguage] || TRANSLATIONS.en;
 
-  // Indian Timeline Greetings: Morning (04:00 - 11:59), Afternoon (12:00 - 16:59), Evening (17:00 - 03:59)
+  // Indian Timeline Greetings: Morning (00:00 - 11:59 IST), Afternoon (12:00 - 16:59 IST), Evening (17:00 - 23:59 IST)
   const getIndianGreeting = (lang) => {
-    const now = new Date();
-    const utcHours = now.getUTCHours();
-    const utcMinutes = now.getUTCMinutes();
-    const istHours = (utcHours + 5 + Math.floor((utcMinutes + 30) / 60)) % 24;
+    const istFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata',
+      hour: 'numeric',
+      hour12: false
+    });
+    const istHours = parseInt(istFormatter.format(new Date()), 10) % 24;
 
-    if (istHours >= 4 && istHours < 12) {
+    if (istHours >= 0 && istHours < 12) {
       return {
         text: lang === 'kn' ? 'ಶುಭೋದಯ' : lang === 'hi' ? 'शुभ प्रभात' : 'Good Morning',
         icon: '🌅',
@@ -195,7 +197,7 @@ export function CitizenPortal({
       <main className="flex-1 min-w-0 space-y-6">
 
         {/* 1. HERO GREETING BANNER - Accurate Indian Timeline Greeting */}
-        <div className="relative rounded-2xl overflow-hidden glass-panel border border-white/15 p-6 md:p-8 bg-gradient-to-r from-slate-950 via-slate-900 to-cyan-950/80 shadow-2xl">
+        <div className="relative rounded-2xl overflow-hidden glass-panel citizen-hero-banner border border-white/15 p-6 md:p-8 bg-gradient-to-r from-slate-950 via-slate-900 to-cyan-950/80 shadow-2xl">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
             
             <div className="space-y-2 max-w-2xl">

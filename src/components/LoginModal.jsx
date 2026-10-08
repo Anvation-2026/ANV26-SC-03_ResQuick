@@ -31,9 +31,9 @@ export function LoginModal({
 }) {
   const [activeTab, setActiveTab] = useState(defaultTab); // 'citizen' | 'admin'
   
-  // Citizen Form State
-  const [citizenName, setCitizenName] = useState('Apoorva P Keretot');
-  const [citizenPhone, setCitizenPhone] = useState('8880803338');
+  // Citizen Form State (Strictly manual user entry - zero autofill)
+  const [citizenName, setCitizenName] = useState('');
+  const [citizenPhone, setCitizenPhone] = useState('');
   const [citizenLang, setCitizenLang] = useState(currentLanguage || 'en');
   
   // Admin Form State
@@ -93,12 +93,17 @@ export function LoginModal({
         return;
       }
 
+      if (!citizenName.trim()) {
+        setErrorMsg('Please enter your full name.');
+        return;
+      }
+
       playDispatchPing();
       onLanguageChange(citizenLang);
       onLoginSuccess({
         role: 'citizen',
-        name: citizenName.trim() || 'Apoorva P Keretot',
-        phone: phoneDigits || '8880803338',
+        name: citizenName.trim(),
+        phone: phoneDigits,
         language: citizenLang,
         verifiedAt: new Date().toISOString()
       });
@@ -128,21 +133,6 @@ export function LoginModal({
     }
 
     onClose();
-  };
-
-  // Demo Autofill Helpers - Notice userCaptcha is explicitly NOT autofilled so user must type it manually
-  const fillApoorvaDemo = () => {
-    setCitizenName('Apoorva P Keretot');
-    setCitizenPhone('8880803338');
-    setUserCaptcha('');
-    setErrorMsg('');
-  };
-
-  const fillCitizenDemo = (name = 'Rashmi G', phone = '8310813290') => {
-    setCitizenName(name);
-    setCitizenPhone(phone);
-    setUserCaptcha('');
-    setErrorMsg('');
   };
 
   const fillHeadCommissioner = () => {
@@ -246,7 +236,7 @@ export function LoginModal({
                 required
                 value={citizenName}
                 onChange={(e) => setCitizenName(e.target.value)}
-                placeholder="e.g. Apoorva P Keretot or Rashmi G"
+                placeholder="Enter your full name"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-white text-xs focus:outline-none focus:border-cyan-400 transition"
               />
             </div>
@@ -326,7 +316,7 @@ export function LoginModal({
                   if (activeTab === 'citizen') setCitizenPhone(val);
                   else setAdminPhone(val);
                 }}
-                placeholder="8880803338"
+                placeholder="Enter 10-digit mobile number"
                 className="w-full pl-12 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-white font-mono text-xs tracking-wider focus:outline-none focus:border-cyan-400 transition"
               />
             </div>
@@ -385,26 +375,9 @@ export function LoginModal({
               </span>
             </button>
 
-            {/* Quick Demo Pre-fill helpers (DO NOT autofill captcha so user must type it manually) */}
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {activeTab === 'citizen' ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={fillApoorvaDemo}
-                    className="flex-1 py-1.5 px-2 rounded-lg bg-white/5 hover:bg-white/10 text-cyan-300 text-[11px] transition border border-white/10 flex items-center justify-center gap-1"
-                  >
-                    <span>Fill: Apoorva (8880803338)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillCitizenDemo('Rashmi G', '8310813290')}
-                    className="flex-1 py-1.5 px-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[11px] transition border border-white/10 flex items-center justify-center gap-1"
-                  >
-                    <span>Fill: Rashmi (8310813290)</span>
-                  </button>
-                </>
-              ) : (
+            {/* Admin Command Quick Helper Only (Zero citizen prefill) */}
+            {activeTab === 'admin' && (
+              <div className="pt-1">
                 <button
                   type="button"
                   onClick={fillHeadCommissioner}
@@ -412,8 +385,8 @@ export function LoginModal({
                 >
                   <span>Fill: Demo Head Commissioner Credentials</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </form>
 
