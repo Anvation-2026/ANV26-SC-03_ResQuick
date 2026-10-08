@@ -6,6 +6,7 @@ ResQuick AI is an integrated municipal grievance management and real-time emerge
 
 ## Live Links and Access
 
+- **Live Production Deployment**: [https://resquick.vercel.app](https://resquick.vercel.app)
 - **GitHub Repository**: [https://github.com/Anvation-2026/ResQuick](https://github.com/Anvation-2026/ResQuick)
 - **Local Development Live URL**: [http://localhost:5173](http://localhost:5173)
 - **Production Build Preview**: [http://localhost:4173](http://localhost:4173)
