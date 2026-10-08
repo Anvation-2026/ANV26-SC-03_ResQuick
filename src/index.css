@@ -1,0 +1,466 @@
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --bg-deep: #0a0f1d;
+  --bg-darker: #060a14;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-glass-bright: rgba(56, 189, 248, 0.35);
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-teal: #14b8a6;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --color-critical: #ef4444;
+  --color-high: #f97316;
+  --color-moderate: #eab308;
+  --color-low: #22c55e;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================================================
+   BASE THEME: DARK TACTICAL (Default)
+   ========================================================================= */
+body, body.theme-dark {
+  background-color: #0b1120;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(14, 116, 144, 0.25) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(30, 58, 138, 0.3) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.8) 0px, transparent 60%);
+  background-attachment: fixed;
+  color: #f1f5f9;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* =========================================================================
+   THEME 2: LIGHT MUNICIPAL (Clean Government White / Slate)
+   ========================================================================= */
+body.theme-light {
+  background-color: #f1f5f9 !important;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(186, 230, 253, 0.55) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(191, 219, 254, 0.45) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(226, 232, 240, 0.7) 0px, transparent 60%) !important;
+  color: #0f172a !important;
+  color-scheme: light;
+}
+
+body.theme-light .glass-panel {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.theme-light .glass-panel-subtle {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+body.theme-light .glass-modal {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18) !important;
+}
+
+body.theme-light header {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body.theme-light header button,
+body.theme-light header nav button {
+  color: #1e293b !important;
+}
+
+body.theme-light header button:hover,
+body.theme-light header nav button:hover {
+  background-color: #f1f5f9 !important;
+  color: #0284c7 !important;
+}
+
+body.theme-light aside {
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+
+body.theme-light aside button {
+  color: #334155 !important;
+}
+
+body.theme-light footer {
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+body.theme-light .bg-slate-950,
+body.theme-light .bg-slate-950\/95,
+body.theme-light .bg-slate-950\/90,
+body.theme-light .bg-slate-950\/85,
+body.theme-light .bg-slate-950\/80 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+body.theme-light .bg-slate-950\/60,
+body.theme-light .bg-slate-900\/60 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+body.theme-light .bg-slate-900,
+body.theme-light .bg-slate-900\/90,
+body.theme-light .bg-slate-900\/80 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+body.theme-light .bg-slate-800,
+body.theme-light .bg-slate-800\/60 {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+body.theme-light h1,
+body.theme-light h2,
+body.theme-light h3,
+body.theme-light h4,
+body.theme-light h1 *,
+body.theme-light h2 *,
+body.theme-light h3 *,
+body.theme-light h4 * {
+  color: #0f172a !important;
+}
+
+/* Ensure buttons, badges, chips with colored or dark backgrounds retain crisp white text */
+body.theme-light button[class*="bg-red-"],
+body.theme-light button[class*="bg-rose-"],
+body.theme-light button[class*="bg-blue-"],
+body.theme-light button[class*="bg-cyan-"],
+body.theme-light button[class*="bg-emerald-"],
+body.theme-light button[class*="bg-amber-"],
+body.theme-light button[class*="bg-indigo-"],
+body.theme-light button[class*="bg-violet-"],
+body.theme-light button[class*="bg-slate-800"],
+body.theme-light button[class*="bg-slate-900"],
+body.theme-light button[class*="bg-slate-950"],
+body.theme-light button[class*="bg-gradient-to-"],
+body.theme-light button[class*="from-"],
+body.theme-light a[class*="bg-red-"],
+body.theme-light a[class*="bg-rose-"],
+body.theme-light a[class*="bg-blue-"],
+body.theme-light a[class*="bg-cyan-"],
+body.theme-light a[class*="bg-emerald-"],
+body.theme-light a[class*="bg-amber-"],
+body.theme-light a[class*="bg-indigo-"],
+body.theme-light span[class*="bg-red-"],
+body.theme-light span[class*="bg-rose-"],
+body.theme-light span[class*="bg-blue-"],
+body.theme-light span[class*="bg-cyan-600"],
+body.theme-light span[class*="bg-emerald-600"],
+body.theme-light .text-white-force {
+  color: #ffffff !important;
+}
+
+body.theme-light button[class*="bg-red-"] *,
+body.theme-light button[class*="bg-rose-"] *,
+body.theme-light button[class*="bg-blue-"] *,
+body.theme-light button[class*="bg-cyan-"] *,
+body.theme-light button[class*="bg-emerald-"] *,
+body.theme-light button[class*="bg-amber-"] *,
+body.theme-light button[class*="bg-indigo-"] *,
+body.theme-light button[class*="bg-gradient-to-"] *,
+body.theme-light a[class*="bg-cyan-"] * {
+  color: #ffffff !important;
+}
+
+/* In light mode, turn white text outside primary buttons into high-contrast dark slate */
+body.theme-light .text-slate-100 {
+  color: #1e293b !important;
+}
+
+body.theme-light .text-white:not(button):not(button *):not(a[class*="bg-"]):not(a[class*="bg-"] *):not([class*="bg-gradient-"] *):not([class*="bg-cyan-600"] *):not([class*="bg-blue-600"] *):not([class*="bg-red-600"] *):not([class*="bg-rose-600"] *):not([class*="bg-emerald-600"] *):not([class*="bg-amber-600"] *):not(.text-white-force) {
+  color: #0f172a !important;
+}
+
+/* Light mode card heading and text */
+body.theme-light .glass-panel p,
+body.theme-light .glass-card-hover p {
+  color: #334155;
+}
+
+body.theme-light .text-slate-200,
+body.theme-light .text-slate-300 {
+  color: #334155 !important;
+}
+
+body.theme-light .text-slate-400 {
+  color: #475569 !important;
+}
+
+body.theme-light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* High-Contrast Colored Labels & Accents in Light Mode */
+body.theme-light .text-cyan-300,
+body.theme-light .text-cyan-400 {
+  color: #0284c7 !important;
+}
+
+body.theme-light .text-amber-300,
+body.theme-light .text-amber-400 {
+  color: #b45309 !important;
+}
+
+body.theme-light .text-rose-300,
+body.theme-light .text-rose-400,
+body.theme-light .text-red-400 {
+  color: #be123c !important;
+}
+
+body.theme-light .text-emerald-300,
+body.theme-light .text-emerald-400 {
+  color: #047857 !important;
+}
+
+body.theme-light .text-indigo-300,
+body.theme-light .text-indigo-400 {
+  color: #4338ca !important;
+}
+
+body.theme-light .border-white\/10,
+body.theme-light .border-white\/15,
+body.theme-light .border-white\/20,
+body.theme-light .border-white\/5 {
+  border-color: #e2e8f0 !important;
+}
+
+body.theme-light input,
+body.theme-light select,
+body.theme-light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body.theme-light input:focus,
+body.theme-light select:focus,
+body.theme-light textarea:focus {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2) !important;
+}
+
+body.theme-light table {
+  color: #0f172a !important;
+}
+
+body.theme-light table thead tr {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+}
+
+body.theme-light table tbody tr {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+body.theme-light table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* =========================================================================
+   THEME 3: CYBER NAVY COMMAND (Military/Tactical Indigo Navy)
+   ========================================================================= */
+body.theme-navy {
+  background-color: #070e24 !important;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.45) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(67, 56, 202, 0.4) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.95) 0px, transparent 60%) !important;
+  color: #e0e7ff !important;
+}
+
+body.theme-navy .glass-panel {
+  background: rgba(15, 28, 64, 0.78) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+body.theme-navy .bg-slate-950 {
+  background-color: #070e24 !important;
+}
+
+body.theme-navy .bg-slate-900 {
+  background-color: #0f1c44 !important;
+}
+
+/* =========================================================================
+   THEME 4: EMERALD OPS (Disaster Response Teal/Forest)
+   ========================================================================= */
+body.theme-emerald {
+  background-color: #051915 !important;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(6, 95, 70, 0.4) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(13, 148, 136, 0.35) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(4, 47, 46, 0.9) 0px, transparent 60%) !important;
+  color: #ecfdf5 !important;
+}
+
+body.theme-emerald .glass-panel {
+  background: rgba(6, 40, 32, 0.78) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+body.theme-emerald .bg-slate-950 {
+  background-color: #051915 !important;
+}
+
+body.theme-emerald .bg-slate-900 {
+  background-color: #0a2e26 !important;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-subtle {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 12px 36px 0 rgba(6, 182, 212, 0.15);
+  transform: translateY(-2px);
+}
+
+.glass-modal {
+  background: rgba(10, 15, 29, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+}
+
+/* Glowing Pulsing Animations */
+@keyframes pulse-critical {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 10px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(239, 68, 68, 0.85), inset 0 0 18px rgba(239, 68, 68, 0.4);
+  }
+}
+
+.glow-critical {
+  animation: pulse-critical 2s infinite ease-in-out;
+}
+
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.radar-sweep {
+  animation: radar-sweep 4s linear infinite;
+}
+
+/* Sound Wave Animation for Voice Recording */
+@keyframes soundwave {
+  0%, 100% { height: 6px; }
+  50% { height: 26px; }
+}
+
+.soundwave-bar {
+  display: inline-block;
+  width: 4px;
+  background: #38bdf8;
+  border-radius: 2px;
+  margin: 0 2px;
+  animation: soundwave 1s infinite ease-in-out;
+}
+.soundwave-bar:nth-child(2) { animation-delay: 0.15s; }
+.soundwave-bar:nth-child(3) { animation-delay: 0.3s; }
+.soundwave-bar:nth-child(4) { animation-delay: 0.45s; }
+.soundwave-bar:nth-child(5) { animation-delay: 0.6s; }
+.soundwave-bar:nth-child(6) { animation-delay: 0.2s; }
+.soundwave-bar:nth-child(7) { animation-delay: 0.35s; }
+
+/* Custom Leaflet Map Full Fit & Crisp Dark Styling */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 460px !important;
+  border-radius: 16px;
+  background: #090e1a !important;
+  font-family: inherit;
+  outline: none;
+  z-index: 10;
+}
+
+.leaflet-pane,
+.leaflet-tile-pane,
+.leaflet-layer {
+  width: 100%;
+  height: 100%;
+}
+
+.leaflet-tile {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+.leaflet-popup-tip {
+  background: rgba(15, 23, 42, 0.95) !important;
+}
