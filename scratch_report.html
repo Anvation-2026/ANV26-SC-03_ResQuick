@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ResQuick AI - Comprehensive Technical Report</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+      @bottom-right {
+        content: counter(page);
+      }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.55;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+    }
+    .header-box {
+      border-bottom: 3px solid #0284c7;
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+    }
+    .title {
+      font-size: 24pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      font-size: 13pt;
+      font-weight: 600;
+      color: #0284c7;
+      margin: 0 0 8px 0;
+    }
+    .meta-bar {
+      font-size: 9pt;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 6px;
+      margin-top: 6px;
+    }
+    h2 {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #0f172a;
+      border-left: 4px solid #0284c7;
+      padding-left: 10px;
+      margin-top: 22px;
+      margin-bottom: 10px;
+    }
+    h3 {
+      font-size: 11.5pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+    p {
+      margin: 0 0 10px 0;
+    }
+    ul, ol {
+      margin: 0 0 12px 0;
+      padding-left: 22px;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    .formula-box {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-left: 5px solid #0284c7;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 11pt;
+      font-weight: bold;
+      color: #0f172a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px 0;
+      font-size: 9.5pt;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      font-size: 8.5pt;
+      font-weight: 700;
+    }
+    .badge-critical { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+    .badge-high { background: #ffedd5; color: #9a3412; border: 1px solid #fb923c; }
+    .badge-moderate { background: #fef9c3; color: #854d0e; border: 1px solid #facc15; }
+    .badge-low { background: #dcfce7; color: #166534; border: 1px solid #4ade80; }
+    .qa-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+    .qa-question {
+      font-weight: 700;
+      color: #0284c7;
+      margin-bottom: 6px;
+      font-size: 10.5pt;
+    }
+    .qa-answer {
+      font-size: 10pt;
+      color: #334155;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    .diagram-box {
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 9pt;
+      padding: 12px;
+      border-radius: 8px;
+      white-space: pre;
+      line-height: 1.35;
+      margin: 12px 0;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header-box">
+    <div class="title">ResQuick AI — Project Technical Report</div>
+    <div class="subtitle">Smart Disaster Response, GIS Ingress Routing & Mathematical Resource Prioritization</div>
+    <div class="meta-bar">
+      <span><strong>System:</strong> DisasterIQ Municipal Core</span>
+      <span><strong>Date:</strong> October 2026</span>
+      <span><strong>Document Type:</strong> Official Hackathon / Competition Technical Specification</span>
+    </div>
+  </div>
+
+  <!-- 1. EXECUTIVE SUMMARY -->
+  <h2>1. Executive Summary & Problem Statement</h2>
+  <p>
+    During severe urban weather emergencies, cloudbursts, and flash floods, civic control rooms are overwhelmed by thousands of disconnected emergency calls. Operators face severe bottlenecks: they lack real-time visibility into which roads are submerged, struggle to communicate with citizens who do not speak English, and have no objective mathematical methodology to determine which trapped citizens or critical hospitals require immediate tactical resources.
+  </p>
+  <p>
+    <strong>ResQuick AI</strong> resolves this life-or-death crisis by providing a dual-portal ecosystem (Citizen Assistance Portal + Municipal Commander Command Center). It fuses <strong>browser-native multi-language speech recognition</strong>, <strong>automated NLP semantic translation to English</strong>, <strong>high-performance GIS street mapping with alternative ingress corridors</strong>, and a <strong>5-factor dynamic mathematical risk formula</strong> that auto-ranks disaster zones and dynamically redistributes emergency resources in real-time.
+  </p>
+
+  <!-- 2. COMPLETE TECHNOLOGY STACK -->
+  <h2>2. Complete Technology Stack Used</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Domain / Component</th>
+        <th style="width: 35%;">Technology & Framework</th>
+        <th style="width: 40%;">Purpose & Implementation Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Frontend Core</strong></td>
+        <td><strong>React 18</strong> with <strong>Vite 5</strong></td>
+        <td>Component-driven architecture, ultra-fast Hot Module Replacement (HMR), optimized production asset chunking.</td>
+      </tr>
+      <tr>
+        <td><strong>Styling & Design System</strong></td>
+        <td><strong>Tailwind CSS 3</strong> & Glassmorphism</td>
+        <td>Adaptive light & tactical dark themes, custom backdrop blurs (<code>backdrop-blur-md</code>), mobile-responsive grid layouts.</td>
+      </tr>
+      <tr>
+        <td><strong>Interactive GIS Map</strong></td>
+        <td><strong>Leaflet.js (v1.9)</strong></td>
+        <td>Open-source geospatial mapping with synchronized viewport bounding, zero-lag tile invalidation, and custom DivIcons.</td>
+      </tr>
+      <tr>
+        <td><strong>Street Map CDN</strong></td>
+        <td><strong>CartoDB Voyager (Cloudflare CDN)</strong></td>
+        <td>High-speed, sub-40ms vector-rendered street map tiles showing exact Bengaluru roads, flyovers, metro corridors, and landmarks.</td>
+      </tr>
+      <tr>
+        <td><strong>Satellite Layer</strong></td>
+        <td><strong>Esri ArcGIS World Imagery</strong></td>
+        <td>High-resolution satellite raster imagery for terrain analysis and waterbody inspection.</td>
+      </tr>
+      <tr>
+        <td><strong>Geolocation & GPS</strong></td>
+        <td><strong>HTML5 Geolocation + OSM Nominatim</strong></td>
+        <td>Real-time browser coordinate acquisition with reverse-geocoding into clean street addresses.</td>
+      </tr>
+      <tr>
+        <td><strong>Voice Recognition (Mic)</strong></td>
+        <td><strong>HTML5 Web Speech Recognition API</strong></td>
+        <td>Captures citizen speech directly via microphone in regional Indian locales (<code>kn-IN</code>, <code>hi-IN</code>, <code>ta-IN</code>, <code>te-IN</code>, etc.).</td>
+      </tr>
+      <tr>
+        <td><strong>NLP Translation Engine</strong></td>
+        <td><strong>Bi-directional Multilingual NLP Pipeline</strong></td>
+        <td>Tokenizes native regional speech transcripts and translates them in real-time into standardized English for government officials.</td>
+      </tr>
+      <tr>
+        <td><strong>Audio & Sound System</strong></td>
+        <td><strong>Web Audio API / HTML5 Audio</strong></td>
+        <td>Frequency-synthesized alert pings, emergency siren loops, and broadcast dispatch ringtones.</td>
+      </tr>
+      <tr>
+        <td><strong>Iconography & UI</strong></td>
+        <td><strong>Lucide React</strong></td>
+        <td>Lightweight, scalable vector icons for hazards, navigation, sensors, and status badges.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 3. LANGUAGES SUPPORTED -->
+  <h2>3. Languages Supported</h2>
+  <p>ResQuick AI bridges the communication divide between regional citizens and administrative commanders across <strong>8 official Indian languages + English</strong>:</p>
+  <ul>
+    <li><strong>Kannada (ಕನ್ನಡ) — [kn-IN]:</strong> Primary municipal language for Bengaluru civic grievances.</li>
+    <li><strong>Hindi (हिन्दी) — [hi-IN]:</strong> National language support for inter-state residents and NDRF squads.</li>
+    <li><strong>Tamil (தமிழ்) — [ta-IN]:</strong> Full regional speech and text translation.</li>
+    <li><strong>Telugu (తెలుగు) — [te-IN]:</strong> Full regional speech and text translation.</li>
+    <li><strong>Malayalam (മലയാളം) — [ml-IN]:</strong> Regional dialect support for southern transit corridors.</li>
+    <li><strong>Marathi (मराठी) — [mr-IN]:</strong> Supported for western regional citizens.</li>
+    <li><strong>Bengali (বাংলা) — [bn-IN]:</strong> Supported for eastern regional citizens.</li>
+    <li><strong>English (English) — [en-IN / en-US]:</strong> Universal administrative lingua franca for commanders.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <!-- 4. MATHEMATICAL RISK PRIORITIZATION MODEL -->
+  <h2>4. Mathematical Risk Prioritization Model</h2>
+  <p>
+    Rather than relying on arbitrary operator decisions, ResQuick AI implements a formal <strong>Multi-Criteria Decision Analysis (MCDA)</strong> risk scoring engine. Every sector is continuously evaluated against five objective weighted parameters:
+  </p>
+
+  <div class="formula-box">
+    Risk Score = (0.30 × S) + (0.25 × P) + (0.20 × I) + (0.15 × A) + (0.10 × C)
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Variable</th>
+        <th>Parameter Name</th>
+        <th>Weight</th>
+        <th>Metric & Evaluation Criteria</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>S</strong></td>
+        <td><strong>Hazard Severity</strong></td>
+        <td><strong>30%</strong></td>
+        <td>Physical depth of standing water (0–2m), building structural failure rate, fire flame velocity.</td>
+      </tr>
+      <tr>
+        <td><strong>P</strong></td>
+        <td><strong>Population Exposure</strong></td>
+        <td><strong>25%</strong></td>
+        <td>Count and demographic density of civilians, elderly, and patients trapped within the hazard polygon.</td>
+      </tr>
+      <tr>
+        <td><strong>I</strong></td>
+        <td><strong>Infrastructure Damage</strong></td>
+        <td><strong>20%</strong></td>
+        <td>Substation immersion, metro corridor shutdown, telecommunication tower collapse risk.</td>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td><strong>Accessibility Difficulty</strong></td>
+        <td><strong>15%</strong></td>
+        <td>Degree of physical ingress blockage, culvert breaches, fallen trees, and debris obstruction.</td>
+      </tr>
+      <tr>
+        <td><strong>C</strong></td>
+        <td><strong>Critical Facility Threat</strong></td>
+        <td><strong>10%</strong></td>
+        <td>Proximity to lifeline facilities (hospitals, trauma units, oxygen supplies, drinking water plants).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Priority Score Tiers & Automated Action Rules</h3>
+  <ul>
+    <li><span class="badge badge-critical">Score 80 – 100: CRITICAL</span> — Immediate NDRF Tactical Water Squad dispatch, trauma ambulance rerouting, automated Siren Alert.</li>
+    <li><span class="badge badge-high">Score 60 – 79: HIGH</span> — Fire & Rescue units deployed, heavy earthmovers tasked, alternative ingress routes opened.</li>
+    <li><span class="badge badge-moderate">Score 40 – 59: MODERATE</span> — Municipal engineering dewatering pumps deployed, traffic diversions active.</li>
+    <li><span class="badge badge-low">Score &lt; 40: LOW / WATCH</span> — Continuous surveillance, preventative drain clearance, baseline watch.</li>
+  </ul>
+
+  <!-- 5. DATASETS USED -->
+  <h2>5. Datasets & Schemas Used</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Dataset Name</th>
+        <th style="width: 20%;">Storage File</th>
+        <th style="width: 55%;">Contents & Schema Attributes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Bengaluru Municipal Hazard Zones</strong></td>
+        <td><code>src/data/zonesData.js</code></td>
+        <td>5 real-world wards (Indiranagar Halasuru, Bellandur Yamalur, Hebbal Flyover, Shivajinagar Russell Market, Peenya Phase 4). Attributes: coordinates, baseline risk scores, road blockage counts, vulnerable population numbers, critical facilities list, verified ground photo evidence.</td>
+      </tr>
+      <tr>
+        <td><strong>Citizen Grievance Incident Registry</strong></td>
+        <td><code>src/data/sampleIncidents.js</code></td>
+        <td>Live incident schema: Application ID (<code>CS-2026-XXXXX</code>), reporter info, category, original native speech transcript, translated English text, GPS lat/lng, assigned municipal department, photo forensics status, real-time lifecycle status (Submitted, Verified, In Progress, Resolved).</td>
+      </tr>
+      <tr>
+        <td><strong>Smart Emergency Ingress Corridors</strong></td>
+        <td><code>src/utils/resourceEngine.js</code></td>
+        <td>Graph pairing blocked primary arteries (with specific obstruction cause) against verified clear AI alternative routes with calculated distance and ETA.</td>
+      </tr>
+      <tr>
+        <td><strong>Doppler Weather & Predictive Telemetry</strong></td>
+        <td><code>WeatherForecastWidget.jsx</code></td>
+        <td>Simulated IMD radar telemetry: Temperature (24°C), rainfall rate (42 mm/hr), humidity (94%), wind velocity (38 km/h), and predictive 3-hour inundation forecasts.</td>
+      </tr>
+      <tr>
+        <td><strong>National Emergency Helplines & Bulletins</strong></td>
+        <td><code>src/data/indiaNews.js</code></td>
+        <td>Official NDMA/SDMA 24/7 toll-free lines (112, 1078, 1070) and verified disaster advisories.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- 6. FAQ & PRESENTATION QUESTIONS -->
+  <h2>6. Hackathon / Presentation Viva Questions & Ready Answers</h2>
+
+  <div class="qa-card">
+    <div class="qa-question">Q1: What is the core innovation of ResQuick AI compared to Google Maps or Dial 112?</div>
+    <div class="qa-answer">
+      <strong>Answer:</strong> Commercial consumer maps only report slow traffic; they do not know that a 1.4-meter flood surge has cut off an ICU hospital approach, nor do they communicate with municipal departments. Dialing 112 creates isolated call logs where operators manually guess priorities. ResQuick AI dynamically aggregates multi-language citizen reports, applies an objective 5-factor mathematical risk model, ranks city sectors, and computes clear emergency ingress corridors to bypass blocked corridors.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">Q2: How does the system handle citizens speaking in regional languages while officers need English?</div>
+    <div class="qa-answer">
+      <strong>Answer:</strong> When in distress, citizens must be able to speak their native mother tongue. ResQuick AI uses the HTML5 Web Speech Recognition API configured with regional dialect locales (such as <code>kn-IN</code> for Kannada or <code>hi-IN</code> for Hindi). The transcribed speech passes through a real-time semantic NLP translation engine that renders standardized administrative English in the Commander Admin Portal, eliminating linguistic barriers during crises.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">Q3: How do you prevent fake, prank, or duplicate incident submissions?</div>
+    <div class="qa-answer">
+      <strong>Answer:</strong> ResQuick AI employs a three-tier defense: First, browser GPS bounding verifies that reports originate from real locations. Second, our spatial clustering engine aggregates complaints within a 500-meter radius into a single consolidated incident. Third, our client-side photo forensics check verifies natural lighting, structural fracture realism, and pixel continuity to eliminate AI-generated fakes.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">Q4: What happens if an area suddenly deteriorates, such as a culvert breach?</div>
+    <div class="qa-answer">
+      <strong>Answer:</strong> We demonstrate this live using the <strong>Simulate Escalation Engine</strong>. When cloudburst conditions worsen in Indiranagar, its score instantly jumps from 82 to 94+. The algorithm promotes Indiranagar to Priority #1, sounds an automated audio alarm, and executes automated resource reallocation—dynamically diverting trauma ambulances and heavy earthmovers from lower-risk depots directly to the hospital corridor.
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-question">Q5: How does the system function if internet connectivity is lost during a disaster?</div>
+    <div class="qa-answer">
+      <strong>Answer:</strong> ResQuick AI is built with an offline-first resilient architecture: map vectors and baseline perimeters are cached locally in browser storage, incident drafts are saved locally until a connection resumes, and an integrated SMS broadcast gateway allows commanders to dispatch mass emergency advisories over basic 2G/GSM cellular networks.
+    </div>
+  </div>
+
+  <!-- 7. ARCHITECTURE WORKFLOW -->
+  <h2>7. High-Level System Architecture Diagram</h2>
+  <div class="diagram-box">
++-----------------------------------------------------------------------------------+
+|                              CITIZEN PORTAL                                       |
+|  - Web Speech API (8 Regional Locales)   - Reverse GPS Geocoding (Nominatim API)  |
+|  - Real-time Language Preference Toggle  - Photo & Video Evidence Upload          |
++------------------------------------------+----------------------------------------+
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|               REAL-TIME MULTILINGUAL NLP TRANSLATION ENGINE                       |
+|   (Kannada / Hindi / Tamil / Telugu / Bengali / Marathi ───► Administrative English)   |
++------------------------------------------+----------------------------------------+
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|          MATHEMATICAL RISK PRIORITIZATION & RESOURCE ALLOCATION CORE              |
+|        Score = 0.30*Severity + 0.25*Pop + 0.20*Infra + 0.15*Access + 0.10*Facility  |
+|   - Dynamic Re-sorting (#1 Priority)    - Automated NDRF / Ambulance Reallocation |
+|   - Escalation Scenario Simulation       - Explainable AI Rationales              |
++------------------------------------------+----------------------------------------+
+                                           |
+                                           v
++-----------------------------------------------------------------------------------+
+|                         COMMANDER ADMIN OPERATIONS CENTER                         |
+|  - Standalone Full-Width Leaflet GIS Map (CartoDB Voyager & Satellite Layers)     |
+|  - Smart Emergency Ingress Corridors     - Live BBMP / NDMA Incident Table        |
+|  - Formal Government Word Report Exporter - Emergency Siren Audio Dispatch Broadcast|
++-----------------------------------------------------------------------------------+
+  </div>
+
+</body>
+</html>
