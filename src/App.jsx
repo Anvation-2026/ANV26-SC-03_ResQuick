@@ -14,6 +14,7 @@ import { QuickerChatbot } from './components/QuickerChatbot';
 import { ApplicationManageModal } from './components/ApplicationManageModal';
 import { GovtReportModal } from './components/GovtReportModal';
 import { SubOfficerPortal } from './components/SubOfficerPortal';
+import { SUB_OFFICERS_LIST } from './data/resourcesData';
 
 import { INITIAL_ZONES, ESCALATION_ZONE_C } from './data/zonesData';
 import { INITIAL_INCIDENTS } from './data/sampleIncidents';
@@ -369,21 +370,61 @@ export function App() {
     playDispatchPing();
   };
 
-  // Switch between citizen & admin/sub-officer views: REQUIRES AUTHENTICATION!
+  // Switch between citizen & admin/sub-officer views
   const handleSwitchPortal = () => {
     if (currentRole === 'citizen') {
-      // Switching to Admin requires Admin authentication! Cannot auto-switch.
-      setIsLoggedIn(false);
-      setLoginModalDefaultTab('admin');
-      setIsLoginModalOpen(true);
+      handleSelectPortal('sub_officer');
     } else if (currentRole === 'sub_officer') {
-      // From sub-officer back to citizen
-      setCurrentRole('citizen');
-      setCurrentLanguage(currentUser.language || 'en');
+      handleSelectPortal('admin');
     } else {
-      // From admin back to citizen
+      handleSelectPortal('citizen');
+    }
+  };
+
+  // Direct 1-click switcher between the 3 portals from the Header
+  const handleSelectPortal = (targetRole) => {
+    setIsLoggedIn(true);
+    if (targetRole === 'citizen') {
       setCurrentRole('citizen');
-      setCurrentLanguage(currentUser.language || 'en');
+      setCurrentLanguage(currentUser?.language || 'en');
+    } else if (targetRole === 'sub_officer') {
+      if (!currentSubOfficer) {
+        const defaultEng = SUB_OFFICERS_LIST[0];
+        setCurrentSubOfficer({
+          role: 'sub_officer',
+          id: defaultEng.id,
+          name: defaultEng.name,
+          roleTitle: defaultEng.role,
+          department: defaultEng.department,
+          phone: defaultEng.phone,
+          zone: defaultEng.zone,
+          specialization: defaultEng.specialization
+        });
+      }
+      setCurrentRole('sub_officer');
+      setCurrentLanguage('en');
+    } else if (targetRole === 'admin') {
+      setCurrentRole('admin');
+      setCurrentLanguage('en');
+    }
+    playDispatchPing();
+  };
+
+  // Switch active engineer inside the Sub-Officer portal
+  const handleSwitchSubOfficer = (engineerId) => {
+    const eng = SUB_OFFICERS_LIST.find(o => o.id === engineerId);
+    if (eng) {
+      setCurrentSubOfficer({
+        role: 'sub_officer',
+        id: eng.id,
+        name: eng.name,
+        roleTitle: eng.role,
+        department: eng.department,
+        phone: eng.phone,
+        zone: eng.zone,
+        specialization: eng.specialization
+      });
+      playDispatchPing();
     }
   };
 
@@ -457,6 +498,7 @@ export function App() {
             onOpenNewsModal={() => setIsNewsModalOpen(true)}
             onOpenHelplinesModal={() => setIsHelplinesModalOpen(true)}
             onSwitchPortal={handleSwitchPortal}
+            onSelectPortal={handleSelectPortal}
             onOpenLoginModal={() => setIsLoginModalOpen(true)}
             onOpenNotifications={() => setIsNewsModalOpen(true)}
             onSignOut={handleSignOut}
@@ -495,16 +537,10 @@ export function App() {
                 zones={zones}
                 isEscalated={isEscalated}
                 onUpdateIncident={handleUpdateIncident}
+                onSwitchEngineer={handleSwitchSubOfficer}
                 onOpenHelplinesModal={() => setIsHelplinesModalOpen(true)}
-                onSwitchToCitizen={() => {
-                  setCurrentRole('citizen');
-                  setCurrentLanguage(currentUser.language || 'en');
-                }}
-                onSwitchToAdmin={() => {
-                  setIsLoggedIn(false);
-                  setLoginModalDefaultTab('admin');
-                  setIsLoginModalOpen(true);
-                }}
+                onSwitchToCitizen={() => handleSelectPortal('citizen')}
+                onSwitchToAdmin={() => handleSelectPortal('admin')}
               />
             ) : (
               <AdminPortal

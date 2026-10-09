@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { RiskMap } from './RiskMap';
 import { WeatherForecastWidget } from './WeatherForecastWidget';
+import { SUB_OFFICERS_LIST } from '../data/resourcesData';
 import { playDispatchPing } from '../utils/soundEffects';
 
 export function SubOfficerPortal({
@@ -36,6 +37,7 @@ export function SubOfficerPortal({
   zones = [],
   isEscalated = false,
   onUpdateIncident,
+  onSwitchEngineer,
   onOpenHelplinesModal,
   onSwitchToCitizen,
   onSwitchToAdmin
@@ -107,7 +109,7 @@ export function SubOfficerPortal({
   // FIRST-COME, FIRST-SERVED CLAIM HANDLER
   const handleClaimIncident = (inc) => {
     // If already claimed by another officer, prevent claim
-    if (inc.assignedSubOfficer && inc.assignedSubOfficer !== 'Unassigned' && inc.assignedSubOfficer !== officerName) {
+    if (inc.assignedSubOfficer && inc.assignedSubOfficer !== 'Unassigned' && inc.assignedSubOfficer !== 'Open for Sub-Officer Claim' && inc.assignedSubOfficer !== officerName) {
       alert(`First-Come, First-Served Rule: This incident has already been claimed by ${inc.assignedSubOfficer} and cannot be accepted by other officers.`);
       return;
     }
@@ -269,6 +271,28 @@ export function SubOfficerPortal({
           <div className="p-2 rounded-xl bg-slate-950/80 border border-white/10 flex items-center justify-between text-xs font-mono">
             <span className="text-slate-400">My Active Leads:</span>
             <span className="text-emerald-400 font-black text-sm">{myAssignedIncidents.length}</span>
+          </div>
+
+          {/* Quick Active Field Engineer Switcher (5 Engineers Pool) */}
+          <div className="pt-2 border-t border-white/10">
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span>Switch Active Engineer:</span>
+              <span className="text-emerald-400 font-mono text-[9px]">5 Engineers</span>
+            </label>
+            <select
+              value={currentOfficer?.id || 'ENG-01'}
+              onChange={(e) => onSwitchEngineer && onSwitchEngineer(e.target.value)}
+              className="w-full px-2.5 py-1.5 rounded-xl bg-slate-950 border border-emerald-500/30 text-emerald-200 text-xs font-bold focus:outline-none focus:border-emerald-400 cursor-pointer transition shadow-inner"
+            >
+              {SUB_OFFICERS_LIST.map(eng => (
+                <option key={eng.id} value={eng.id} className="bg-slate-900 text-white">
+                  {eng.name} ({eng.department.split(' ')[0]})
+                </option>
+              ))}
+            </select>
+            <p className="text-[10px] text-slate-400 mt-1 italic">
+              Switch engineers to test First-Come, First-Served locking between field leads!
+            </p>
           </div>
         </div>
 
@@ -465,8 +489,8 @@ export function SubOfficerPortal({
             <div className="grid grid-cols-1 gap-4">
               {openQueueIncidents.map(inc => {
                 const isClaimedByMe = inc.assignedSubOfficer?.toLowerCase().trim() === officerName.toLowerCase().trim();
-                const isClaimedByOther = inc.assignedSubOfficer && inc.assignedSubOfficer !== 'Unassigned' && !isClaimedByMe;
-                const isUnclaimed = !inc.assignedSubOfficer || inc.assignedSubOfficer === 'Unassigned';
+                const isClaimedByOther = inc.assignedSubOfficer && inc.assignedSubOfficer !== 'Unassigned' && inc.assignedSubOfficer !== 'Open for Sub-Officer Claim' && !isClaimedByMe;
+                const isUnclaimed = !inc.assignedSubOfficer || inc.assignedSubOfficer === 'Unassigned' || inc.assignedSubOfficer === 'Open for Sub-Officer Claim';
 
                 return (
                   <div 

@@ -113,6 +113,63 @@ export function AdminPortal({
     }
   };
 
+  // Admin assigns single complaint to ALL 5 Sub-Officers under FCFS protocol
+  const handleAssignToAllSubOfficers = (inc) => {
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const updatedTimeline = (inc.timeline || []).map(step => {
+      if (step.step === 'Assigned') {
+        return {
+          ...step,
+          status: 'done',
+          time: nowTime,
+          note: 'Admin Command assigned complaint to all 5 Sub-Officers under First-Come, First-Served protocol.'
+        };
+      }
+      return step;
+    });
+
+    const updated = {
+      ...inc,
+      status: 'Assigned',
+      assignedSubOfficer: 'Open for Sub-Officer Claim',
+      assignedToPool: true,
+      officerProgressNote: 'Broadcasted by Admin to all 5 field engineers for FCFS claim responsibility.',
+      timeline: updatedTimeline
+    };
+
+    onUpdateIncident(updated);
+  };
+
+  // Bulk assign all open complaints to Sub-Officers pool
+  const handleAssignAllOpenToSubOfficers = () => {
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    incidents.forEach(inc => {
+      if (!inc.assignedSubOfficer || inc.assignedSubOfficer === 'Unassigned') {
+        const updatedTimeline = (inc.timeline || []).map(step => {
+          if (step.step === 'Assigned') {
+            return {
+              ...step,
+              status: 'done',
+              time: nowTime,
+              note: 'Admin Command assigned complaint to all 5 Sub-Officers under First-Come, First-Served protocol.'
+            };
+          }
+          return step;
+        });
+
+        const updated = {
+          ...inc,
+          status: 'Assigned',
+          assignedSubOfficer: 'Open for Sub-Officer Claim',
+          assignedToPool: true,
+          officerProgressNote: 'Broadcasted by Admin to all 5 field engineers for FCFS claim responsibility.',
+          timeline: updatedTimeline
+        };
+        onUpdateIncident(updated);
+      }
+    });
+  };
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3, badge: 'Overview' },
     { id: 'applications', label: 'All Applications', icon: FileText, badge: `${incidents.length}` },
@@ -282,6 +339,15 @@ export function AdminPortal({
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export CSV</span>
+            </button>
+
+            <button
+              onClick={handleAssignAllOpenToSubOfficers}
+              className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm active:scale-95"
+              title="Broadcast all open grievances to all 5 Sub-Officers under First-Come, First-Served protocol"
+            >
+              <HardHat className="w-3.5 h-3.5" />
+              <span>Assign Open to 5 Sub-Officers (FCFS)</span>
             </button>
 
             <button
@@ -615,6 +681,28 @@ export function AdminPortal({
                         </td>
                         <td className="py-3.5 px-3 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            {/* Direct Admin Button: Assign to ALL 5 Sub-Officers under FCFS */}
+                            {(!inc.assignedSubOfficer || inc.assignedSubOfficer === 'Unassigned') ? (
+                              <button
+                                onClick={() => handleAssignToAllSubOfficers(inc)}
+                                className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-[11px] font-bold flex items-center gap-1 transition shadow-sm whitespace-nowrap active:scale-95"
+                                title="Broadcast this grievance to all 5 Sub-Officers for First-Come, First-Served claim"
+                              >
+                                <HardHat className="w-3.5 h-3.5" />
+                                <span>Assign to 5 Sub-Officers (FCFS)</span>
+                              </button>
+                            ) : inc.assignedSubOfficer === 'Open for Sub-Officer Claim' ? (
+                              <span className="px-2 py-1 rounded-lg bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[10px] font-bold flex items-center gap-1 whitespace-nowrap">
+                                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                                <span>Awaiting FCFS Claim</span>
+                              </span>
+                            ) : (
+                              <span className="px-2 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold flex items-center gap-1 whitespace-nowrap">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                                <span>Accepted: {inc.assignedSubOfficer}</span>
+                              </span>
+                            )}
+
                             {/* Govt Report Button beside the problem */}
                             <button
                               onClick={() => onOpenGovtReport(inc)}

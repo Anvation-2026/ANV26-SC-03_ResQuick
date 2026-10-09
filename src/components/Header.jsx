@@ -35,6 +35,7 @@ export function Header({
   onOpenNewsModal,
   onOpenHelplinesModal,
   onSwitchPortal,
+  onSelectPortal,
   onOpenLoginModal,
   onOpenNotifications,
   onSignOut,
@@ -89,8 +90,53 @@ export function Header({
           </div>
         </div>
 
-        {/* Center: Clean spacer (Both Admin and Citizen portals have dedicated vertical sidebars) */}
-        <div className="flex-1" />
+        {/* Center: HIGH-VISIBILITY 3-PORTAL NAVIGATION TABS */}
+        <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-900/90 border border-white/15 shadow-xl">
+          <button
+            type="button"
+            onClick={() => onSelectPortal ? onSelectPortal('citizen') : onSwitchPortal()}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+              currentRole === 'citizen'
+                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md ring-1 ring-cyan-400'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+            title="Switch to Citizen Portal"
+          >
+            <span>👤</span>
+            <span>Citizen Portal</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onSelectPortal ? onSelectPortal('sub_officer') : onSwitchPortal()}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+              currentRole === 'sub_officer'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md ring-1 ring-emerald-400'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+            title="Switch to Sub-Officer Field Engineer Portal"
+          >
+            <span>👷</span>
+            <span>Sub-Officer Portal</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 text-[9px] font-mono border border-emerald-500/40 hidden sm:inline">
+              5 Engineers
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onSelectPortal ? onSelectPortal('admin') : onSwitchPortal()}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+              currentRole === 'admin'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md ring-1 ring-blue-400'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+            title="Switch to Admin Command Hub"
+          >
+            <span>🛡️</span>
+            <span>Admin Command</span>
+          </button>
+        </div>
 
         {/* Right Controls: Escalation Button, Theme Switcher, Language Selector, User Badge */}
         <div className="flex items-center gap-2 sm:gap-2.5 w-full md:w-auto justify-end">
