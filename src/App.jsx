@@ -19,6 +19,12 @@ import { INITIAL_INCIDENTS } from './data/sampleIncidents';
 import { INDIA_DISASTER_NEWS } from './data/indiaNews';
 import { calculateDynamicPriorities } from './utils/riskEngine';
 import { playEmergencySiren, playDispatchPing } from './utils/soundEffects';
+import { 
+  fetchCloudIncidents, 
+  pushIncidentToCloud, 
+  updateIncidentInCloud, 
+  connectRealtimeSync 
+} from './utils/cloudSync';
 
 export function App() {
   // 1. Session Persistence across Refresh
@@ -30,6 +36,12 @@ export function App() {
         if (parsed?.currentUser?.name === 'Apoorva P Keretot') {
           parsed.currentUser.name = 'Citizen Resident';
           parsed.currentUser.phone = '';
+        }
+        if (!parsed.currentLanguage || parsed.currentLanguage === 'kn') {
+          parsed.currentLanguage = 'en';
+        }
+        if (parsed?.currentUser?.language === 'kn') {
+          parsed.currentUser.language = 'en';
         }
         return parsed;
       }
@@ -50,7 +62,7 @@ export function App() {
           role: 'citizen',
           name: 'Citizen Resident',
           phone: '',
-          language: 'kn'
+          language: 'en'
         }
   );
 
@@ -65,8 +77,8 @@ export function App() {
     }
   );
 
-  // Language state (In Citizen Portal: preferred language; in Admin: English only)
-  const [currentLanguage, setCurrentLanguage] = useState(initialSession?.currentLanguage || 'kn');
+  // Language state (In Citizen Portal: preferred language, defaults to English 'en'; in Admin: English only)
+  const [currentLanguage, setCurrentLanguage] = useState(initialSession?.currentLanguage || 'en');
 
   // Theme State
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -162,6 +174,49 @@ export function App() {
     };
   }, []);
 
+  // 3. Global Cloud Sync: Real-Time SSE listener + 24h complaint pull for remote cross-device updates
+  useEffect(() => {
+    // 1. Fetch recent incidents published from any device in the last 24h
+    fetchCloudIncidents().then((cloudIncidents) => {
+      if (cloudIncidents && cloudIncidents.length > 0) {
+        setIncidents((prev) => {
+          const map = new Map();
+          // Initial/local incidents
+          prev.forEach((i) => map.set(i.id, i));
+          // Overlay cloud incidents
+          cloudIncidents.forEach((i) => map.set(i.id, i));
+          const merged = Array.from(map.values());
+          try {
+            localStorage.setItem('resquick_incidents', JSON.stringify(merged));
+          } catch (e) {}
+          return merged;
+        });
+      }
+    });
+
+    // 2. Connect live Server-Sent Events stream for instant push when complaints are submitted on other devices
+    const disconnectCloudSync = connectRealtimeSync((incomingIncident) => {
+      setIncidents((prev) => {
+        const exists = prev.some((i) => i.id === incomingIncident.id);
+        let updated;
+        if (exists) {
+          updated = prev.map((i) => (i.id === incomingIncident.id ? incomingIncident : i));
+        } else {
+          updated = [incomingIncident, ...prev];
+          playDispatchPing();
+        }
+        try {
+          localStorage.setItem('resquick_incidents', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
+    });
+
+    return () => {
+      disconnectCloudSync();
+    };
+  }, []);
+
   // Modals visibility state
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -225,7 +280,7 @@ export function App() {
     playDispatchPing();
   };
 
-  // Submit new citizen report (fast real-time update in both portals & cross tabs)
+  // Submit new citizen report (fast real-time update in both portals & cross tabs & cross devices)
   const handleNewIncidentReport = (newIncident) => {
     const updated = [newIncident, ...incidents];
     setIncidents(updated);
@@ -241,6 +296,9 @@ export function App() {
         ch.close();
       }
     } catch (e) {}
+
+    // Global Cloud Relay: sync immediately to Admin portal across all devices
+    pushIncidentToCloud(newIncident);
   };
 
   // Update existing incident from Admin
@@ -259,6 +317,9 @@ export function App() {
         ch.close();
       }
     } catch (e) {}
+
+    // Global Cloud Relay: update status for citizen tracking on any device
+    updateIncidentInCloud(updatedIncident);
   };
 
   // Update National Disaster News from Admin
@@ -308,8 +369,27 @@ export function App() {
     } else {
       // From admin back to citizen
       setCurrentRole('citizen');
-      setCurrentLanguage(currentUser.language || 'kn');
+      setCurrentLanguage(currentUser.language || 'en');
     }
+  };
+
+  // Helper to open Track Status focusing on current user's grievance
+  const handleOpenCitizenTrackStatus = () => {
+    const cleanPhone = (p) => (p || '').replace(/\D/g, '').slice(-10);
+    const uPhone = cleanPhone(currentUser?.phone);
+    const uName = (currentUser?.name || '').trim().toLowerCase();
+    
+    // Find latest incident reported by this citizen
+    const myInc = incidents.find(inc => {
+      const incP = cleanPhone(inc.reporterPhone);
+      const incN = (inc.reporterName || '').trim().toLowerCase();
+      if (uPhone && incP && uPhone === incP) return true;
+      if (uName && incN && uName !== 'citizen resident' && uName !== 'citizen user' && uName === incN) return true;
+      return false;
+    });
+
+    setSelectedTrackId(myInc ? myInc.id : '');
+    setIsTrackModalOpen(true);
   };
 
   // Open Manage Modal
@@ -353,10 +433,7 @@ export function App() {
             isEscalated={isEscalated}
             onToggleEscalation={handleToggleEscalation}
             onOpenReportModal={() => setIsReportModalOpen(true)}
-            onOpenTrackModal={() => {
-              setSelectedTrackId(incidents[0]?.id || 'CS-2026-00001');
-              setIsTrackModalOpen(true);
-            }}
+            onOpenTrackModal={handleOpenCitizenTrackStatus}
             onOpenNewsModal={() => setIsNewsModalOpen(true)}
             onOpenHelplinesModal={() => setIsHelplinesModalOpen(true)}
             onSwitchPortal={handleSwitchPortal}
@@ -376,10 +453,7 @@ export function App() {
                 incidents={incidents}
                 isEscalated={isEscalated}
                 onOpenReportModal={() => setIsReportModalOpen(true)}
-                onOpenTrackModal={() => {
-                  setSelectedTrackId(incidents[0]?.id || 'CS-2026-00001');
-                  setIsTrackModalOpen(true);
-                }}
+                onOpenTrackModal={handleOpenCitizenTrackStatus}
                 onOpenNewsModal={() => setIsNewsModalOpen(true)}
                 onOpenHelplinesModal={() => setIsHelplinesModalOpen(true)}
                 onSelectZone={(z) => setSelectedZone(z)}
@@ -406,7 +480,7 @@ export function App() {
                 onOpenHelplinesModal={() => setIsHelplinesModalOpen(true)}
                 onSwitchToCitizen={() => {
                   setCurrentRole('citizen');
-                  setCurrentLanguage(currentUser.language || 'kn');
+                  setCurrentLanguage(currentUser.language || 'en');
                 }}
                 currentOfficer={currentOfficer}
                 onUpdateIncident={handleUpdateIncident}
@@ -421,7 +495,7 @@ export function App() {
             <QuickerChatbot
               currentLanguage={currentLanguage}
               onOpenReportModal={() => setIsReportModalOpen(true)}
-              onOpenTrackModal={() => setIsTrackModalOpen(true)}
+              onOpenTrackModal={handleOpenCitizenTrackStatus}
               onOpenHelplinesModal={() => setIsHelplinesModalOpen(true)}
               incidents={incidents}
             />
@@ -446,6 +520,9 @@ export function App() {
         currentLanguage={currentLanguage}
         incidents={incidents}
         initialSelectedId={selectedTrackId}
+        currentUser={currentUser}
+        currentRole={currentRole}
+        onOpenReportModal={() => setIsReportModalOpen(true)}
       />
 
       {/* 1-Click Broadcast Emergency SMS Alert Modal with Logged-in citizen direct dispatch */}

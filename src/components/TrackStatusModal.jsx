@@ -11,7 +11,10 @@ import {
   ShieldCheck, 
   User, 
   ChevronRight,
-  Sparkles
+  Sparkles,
+  PlusCircle,
+  FolderClock,
+  FileQuestion
 } from 'lucide-react';
 import { TRANSLATIONS } from '../data/translations';
 
@@ -20,26 +23,67 @@ export function TrackStatusModal({
   onClose,
   currentLanguage,
   incidents = [],
-  initialSelectedId
+  initialSelectedId,
+  currentUser,
+  currentRole = 'citizen',
+  onOpenReportModal
 }) {
-  const [searchId, setSearchId] = useState(initialSelectedId || 'CS-2026-8492');
-  const [selectedIncident, setSelectedIncident] = useState(
-    incidents.find(i => i.id === (initialSelectedId || 'CS-2026-8492')) || incidents[0]
-  );
+  const cleanPhone = (phoneStr) => (phoneStr || '').replace(/\D/g, '').slice(-10);
+  const userPhone = cleanPhone(currentUser?.phone);
+  const userName = (currentUser?.name || '').trim().toLowerCase();
+  const userId = currentUser?.id || currentUser?.reporterUserId;
 
-  // Auto-sync whenever initialSelectedId or incidents change (Requirement 8)
+  // For Admin: show all city incidents
+  // For Citizen: strictly scope to incidents submitted by their account
+  const scopedIncidents = React.useMemo(() => {
+    if (currentRole === 'admin') {
+      return incidents;
+    }
+    return incidents.filter(inc => {
+      const incPhone = cleanPhone(inc.reporterPhone);
+      const incName = (inc.reporterName || '').trim().toLowerCase();
+      const incUserId = inc.reporterUserId;
+
+      if (userPhone && incPhone && userPhone === incPhone) return true;
+      if (userId && incUserId && (userId === incUserId || userPhone === incUserId)) return true;
+      if (userName && incName && userName !== 'citizen resident' && userName !== 'citizen user' && userName === incName) return true;
+      return false;
+    });
+  }, [incidents, currentRole, userPhone, userName, userId]);
+
+  const [searchId, setSearchId] = useState('');
+  const [selectedIncident, setSelectedIncident] = useState(null);
+
+  // Auto-sync whenever initialSelectedId or scopedIncidents change
   React.useEffect(() => {
+    if (!isOpen) return;
+
     if (initialSelectedId) {
       setSearchId(initialSelectedId);
-      const found = incidents.find(i => i.id.toLowerCase().trim() === initialSelectedId.toLowerCase().trim());
-      if (found) {
-        setSelectedIncident(found);
+      const foundInScoped = scopedIncidents.find(i => i.id.toLowerCase().trim() === initialSelectedId.toLowerCase().trim());
+      const foundInAll = incidents.find(i => i.id.toLowerCase().trim() === initialSelectedId.toLowerCase().trim());
+
+      if (foundInScoped) {
+        setSelectedIncident(foundInScoped);
+      } else if (currentRole === 'admin' && foundInAll) {
+        setSelectedIncident(foundInAll);
+      } else if (foundInAll && (cleanPhone(foundInAll.reporterPhone) === userPhone || foundInAll.reporterName?.toLowerCase().trim() === userName)) {
+        setSelectedIncident(foundInAll);
+      } else if (scopedIncidents.length > 0) {
+        setSelectedIncident(scopedIncidents[0]);
+        setSearchId(scopedIncidents[0].id);
+      } else {
+        setSelectedIncident(null);
+        setSearchId(initialSelectedId);
       }
-    } else if (incidents.length > 0) {
-      setSelectedIncident(incidents[0]);
-      setSearchId(incidents[0].id);
+    } else if (scopedIncidents.length > 0) {
+      setSelectedIncident(scopedIncidents[0]);
+      setSearchId(scopedIncidents[0].id);
+    } else {
+      setSelectedIncident(null);
+      setSearchId('');
     }
-  }, [initialSelectedId, incidents]);
+  }, [isOpen, initialSelectedId, scopedIncidents, incidents, currentRole, userPhone, userName]);
 
   const t = TRANSLATIONS[currentLanguage] || TRANSLATIONS.en;
 
@@ -47,13 +91,28 @@ export function TrackStatusModal({
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const found = incidents.find(i => i.id.toLowerCase().trim() === searchId.toLowerCase().trim());
+    if (!searchId.trim()) return;
+    const target = searchId.trim().toLowerCase();
+
+    // Check in scoped incidents first
+    let found = scopedIncidents.find(i => i.id.toLowerCase() === target);
+
+    // If not found in scoped list, allow checking all incidents if matching citizen phone/name or if in admin mode, or exact token search
+    if (!found) {
+      const matchAll = incidents.find(i => i.id.toLowerCase() === target);
+      if (matchAll) {
+        found = matchAll;
+      }
+    }
+
     if (found) {
       setSelectedIncident(found);
+    } else {
+      setSelectedIncident(null);
     }
   };
 
-  const currentInc = selectedIncident || incidents[0];
+  const currentInc = selectedIncident;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-in fade-in">
@@ -68,7 +127,7 @@ export function TrackStatusModal({
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-400/30 flex items-center justify-center shadow-lg shadow-cyan-500/20">
             <Search className="w-5 h-5" />
           </div>
@@ -81,6 +140,23 @@ export function TrackStatusModal({
             </p>
           </div>
         </div>
+
+        {/* Citizen Account Context Banner */}
+        {currentRole === 'citizen' && (
+          <div className="mb-4 px-3.5 py-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs text-cyan-200">
+            <div className="flex items-center gap-2">
+              <User className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span>
+                Signed-in Account: <strong className="text-white">{currentUser?.name || 'Citizen Resident'}</strong> {userPhone ? `(📞 +91 ${userPhone})` : ''}
+              </span>
+            </div>
+            <span className="text-[11px] font-mono font-bold text-emerald-400">
+              {scopedIncidents.length === 0 
+                ? '0 Active Reports' 
+                : `${scopedIncidents.length} Registered Complaint${scopedIncidents.length > 1 ? 's' : ''}`}
+            </span>
+          </div>
+        )}
 
         {/* Search Bar & Quick Switcher */}
         <div className="flex flex-col sm:flex-row gap-2 mb-5">
@@ -100,25 +176,27 @@ export function TrackStatusModal({
             </button>
           </form>
 
-          {/* Quick select pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto py-1">
-            {incidents.slice(0, 3).map(inc => (
-              <button
-                key={inc.id}
-                onClick={() => {
-                  setSearchId(inc.id);
-                  setSelectedIncident(inc);
-                }}
-                className={`px-2.5 py-1.5 rounded-lg text-xs font-mono transition border ${
-                  currentInc?.id === inc.id
-                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 font-bold'
-                    : 'bg-slate-900/60 text-slate-400 border-white/10 hover:border-white/20'
-                }`}
-              >
-                {inc.id}
-              </button>
-            ))}
-          </div>
+          {/* Quick select pills: Strictly scoped to current user's complaints (or city for admin) */}
+          {scopedIncidents.length > 0 && (
+            <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+              {scopedIncidents.slice(0, 4).map(inc => (
+                <button
+                  key={inc.id}
+                  onClick={() => {
+                    setSearchId(inc.id);
+                    setSelectedIncident(inc);
+                  }}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-mono transition border ${
+                    currentInc?.id === inc.id
+                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 font-bold'
+                      : 'bg-slate-900/60 text-slate-400 border-white/10 hover:border-white/20'
+                  }`}
+                >
+                  {inc.id}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {currentInc ? (
@@ -315,8 +393,38 @@ export function TrackStatusModal({
 
           </div>
         ) : (
-          <div className="text-center py-8 text-slate-400">
-            No report found for "{searchId}". Please check your tracking number.
+          <div className="text-center py-10 px-4 rounded-xl bg-slate-900/60 border border-white/10 space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-400/20 flex items-center justify-center mx-auto">
+              <FolderClock className="w-7 h-7" />
+            </div>
+            <div className="max-w-md mx-auto space-y-1.5">
+              <h3 className="text-base font-bold text-white">
+                {searchId ? `No Grievance Record Found for "${searchId}"` : 'No Grievance Records Under This Account'}
+              </h3>
+              <p className="text-xs text-slate-400">
+                {currentRole === 'citizen'
+                  ? `Signed in as ${currentUser?.name || 'Citizen'} ${userPhone ? `(📞 +91 ${userPhone})` : ''}. Only complaints submitted by your account appear here.`
+                  : 'Enter a valid Application No. (e.g., CS-2026-00001) in the search bar above to inspect grievance status.'}
+              </p>
+            </div>
+            {currentRole === 'citizen' && (
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    if (onOpenReportModal) onOpenReportModal();
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/20 transition flex items-center gap-2"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  <span>Report an Emergency / Problem Now</span>
+                </button>
+              </div>
+            )}
+            <p className="text-[11px] text-slate-500">
+              Tip: If you have a tracking Application No. from an SMS dispatch, enter it in the search bar above.
+            </p>
           </div>
         )}
 

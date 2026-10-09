@@ -65,8 +65,9 @@ export function LoginModal({
       generateCaptcha();
       setErrorMsg('');
       if (defaultTab) setActiveTab(defaultTab);
+      if (currentLanguage) setCitizenLang(currentLanguage);
     }
-  }, [isOpen, defaultTab]);
+  }, [isOpen, defaultTab, currentLanguage]);
 
   if (!isOpen) return null;
 
