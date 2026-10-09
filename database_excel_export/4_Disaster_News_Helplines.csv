@@ -1,0 +1,12 @@
+Type,Identifier / Number,Title / Name,Region / Authority,Hazard / Scope,Severity / Badge,Evacuated Count,Relief Camps Active,Summary / Description
+News,news-1,NDRF Deploys 6 Battalions Following Torrential Hillslope Slips,Kerala (Wayanad & Idukki),Landslide & Flash Surge,CRITICAL,1420,24,"District administration establishes 24 temporary relief shelters in Meppadi. 1400 people relocated to safe higher ground. Army building Bailey bridge."
+News,news-2,Beas River Water Level Crosses Warning Mark Near Pandoh Dam,Himachal Pradesh (Mandi & Kullu),Cloudburst & River Swell,HIGH,680,9,SDRF and local police execute precautionary evacuation along lower riverbanks. Heavy earthmovers clearing rockslides on NH-21.
+News,news-3,High Tide Warning Issued for Ennore & Marina Shorelines,Tamil Nadu (Chennai Coastal Belt),Depression / Coastal Inundation,MODERATE,350,6,Integrated Command Center monitoring 42 low-lying stormwater drains. 80 high-capacity submersible pumps positioned proactively.
+News,news-4,Brahmaputra Flows Above Danger Level at 4 Gauging Stations,Assam (Kaziranga & Dhubri),Brahmaputra Flood Surge,HIGH,2890,18,Joint SDRF-Forest Department boat patrols guarding wildlife corridors and human settlements. Potable water tankers dispatched.
+Helpline,112,National Emergency Universal Helpline,All India,Unified Police Fire Ambulance & Disaster,Toll-Free 24/7,N/A,N/A,Single emergency response support system for all Indian states
+Helpline,1078,National Disaster Response Force (NDRF),Central Control Room,National Disaster Rescue Operations,National 24/7,N/A,N/A,Direct NDRF command control room for flood cyclone and earthquake rescue
+Helpline,1070,State Emergency Operations Center (SEOC),Karnataka KSDMA,State Disaster Command Center,State Govt,N/A,N/A,State level monitoring and inter-district asset mobilization
+Helpline,1077,District Emergency Operations Center (DEOC),Bengaluru Urban District,District Disaster Relief Hub,District Admin,N/A,N/A,Bengaluru Urban district collector disaster response cell
+Helpline,080-22221188,Central Flood Control Cell,BBMP & BWSSB,Storm Drain & Inundation Cell,Municipal Hotline,N/A,N/A,Dedicated Bengaluru municipal flood control desk
+Helpline,108,Trauma & Emergency Ambulance Service,Arogya Kavacha,Emergency Medical Service,Medical 24/7,N/A,N/A,Free ambulance dispatch across Karnataka
+Helpline,101,Fire & Emergency Rescue Services,Karnataka Fire Force,Firefighting & Water Extrication,Emergency 24/7,N/A,N/A,Station dispatch for building fire and chemical accidents

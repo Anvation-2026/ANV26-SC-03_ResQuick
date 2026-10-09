@@ -14,10 +14,11 @@ import {
   Phone,
   ArrowRight,
   Sparkles,
-  KeyRound
+  KeyRound,
+  HardHat
 } from 'lucide-react';
 import { LANGUAGES, TRANSLATIONS } from '../data/translations';
-import { DEPARTMENTS, JURISDICTIONS } from '../data/resourcesData';
+import { DEPARTMENTS, JURISDICTIONS, SUB_OFFICERS_LIST } from '../data/resourcesData';
 import { playDispatchPing } from '../utils/soundEffects';
 
 export function LoginModal({
@@ -29,7 +30,7 @@ export function LoginModal({
   isStandalone = false,
   defaultTab = 'citizen'
 }) {
-  const [activeTab, setActiveTab] = useState(defaultTab); // 'citizen' | 'admin'
+  const [activeTab, setActiveTab] = useState(defaultTab); // 'citizen' | 'admin' | 'sub_officer'
   
   // Citizen Form State (Strictly manual user entry - zero autofill)
   const [citizenName, setCitizenName] = useState('');
@@ -42,6 +43,10 @@ export function LoginModal({
   const [adminPhone, setAdminPhone] = useState('8310813290');
   const [selectedDept, setSelectedDept] = useState('head_commissioner');
   const [selectedLocation, setSelectedLocation] = useState('All City Regions (Head Command)');
+
+  // Sub-Officer Form State
+  const [selectedSubOfficerId, setSelectedSubOfficerId] = useState('ENG-01');
+  const [subOfficerPassword, setSubOfficerPassword] = useState('officer2026');
   
   // Captcha state (strictly manual input required by user)
   const [captchaCode, setCaptchaCode] = useState('');
@@ -108,7 +113,7 @@ export function LoginModal({
         language: citizenLang,
         verifiedAt: new Date().toISOString()
       });
-    } else {
+    } else if (activeTab === 'admin') {
       // Officer / Admin Command Login
       if (!adminId.trim() || !adminPassword.trim()) {
         setErrorMsg('Please enter Officer ID and Password.');
@@ -128,6 +133,28 @@ export function LoginModal({
         departmentId: deptObj.id,
         isHeadOfficer,
         location: isHeadOfficer ? 'All City Regions' : selectedLocation,
+        language: 'en',
+        verifiedAt: new Date().toISOString()
+      });
+    } else {
+      // Sub-Officer / Field Engineer Login
+      if (!subOfficerPassword.trim()) {
+        setErrorMsg('Please enter Field Engineer password.');
+        return;
+      }
+
+      playDispatchPing();
+      const engineer = SUB_OFFICERS_LIST.find(o => o.id === selectedSubOfficerId) || SUB_OFFICERS_LIST[0];
+
+      onLoginSuccess({
+        role: 'sub_officer',
+        id: engineer.id,
+        name: engineer.name,
+        roleTitle: engineer.role,
+        department: engineer.department,
+        phone: engineer.phone,
+        zone: engineer.zone,
+        specialization: engineer.specialization,
         language: 'en',
         verifiedAt: new Date().toISOString()
       });
@@ -173,32 +200,45 @@ export function LoginModal({
           </p>
         </div>
 
-        {/* Role Toggle Tabs */}
-        <div className="flex p-1 rounded-xl bg-slate-900/90 border border-white/10 mb-5">
+        {/* Role Toggle Tabs (Citizen, Admin Command, Sub-Officer) */}
+        <div className="grid grid-cols-3 p-1 rounded-xl bg-slate-900/90 border border-white/10 mb-5 gap-1">
           <button
             type="button"
             onClick={() => { setActiveTab('citizen'); setErrorMsg(''); }}
-            className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 ${
+            className={`py-2 px-1 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
               activeTab === 'citizen'
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <User className="w-4 h-4" />
-            <span>Citizen / User Portal</span>
+            <User className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Citizen</span>
           </button>
           
           <button
             type="button"
             onClick={() => { setActiveTab('admin'); setErrorMsg(''); }}
-            className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 ${
+            className={`py-2 px-1 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
               activeTab === 'admin'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Officer / Admin Command</span>
+            <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Admin Command</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { setActiveTab('sub_officer'); setErrorMsg(''); }}
+            className={`py-2 px-1 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+              activeTab === 'sub_officer'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <HardHat className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Sub-Officer</span>
           </button>
         </div>
 
@@ -294,34 +334,95 @@ export function LoginModal({
             </div>
           )}
 
-          {/* Mobile Number */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Mobile Number (For Emergency Alerts & WhatsApp Dispatch)</span>
-              </span>
-              <span className="text-[10px] text-cyan-400 font-bold">10-Digit Mobile</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
-                +91
-              </span>
-              <input
-                type="tel"
-                required
-                maxLength={10}
-                value={activeTab === 'citizen' ? citizenPhone : adminPhone}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '');
-                  if (activeTab === 'citizen') setCitizenPhone(val);
-                  else setAdminPhone(val);
-                }}
-                placeholder="Enter 10-digit mobile number"
-                className="w-full pl-12 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-white font-mono text-xs tracking-wider focus:outline-none focus:border-cyan-400 transition"
-              />
+          {/* Sub-Officer / Field Engineer Form */}
+          {activeTab === 'sub_officer' && (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <HardHat className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Select Field Engineer Name (5 Engineers Pool)</span>
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-mono font-bold">Duty Pool</span>
+                </label>
+                <select
+                  value={selectedSubOfficerId}
+                  onChange={(e) => setSelectedSubOfficerId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-white text-xs font-bold focus:outline-none focus:border-emerald-400 transition"
+                >
+                  {SUB_OFFICERS_LIST.map(eng => (
+                    <option key={eng.id} value={eng.id} className="bg-slate-900 text-white">
+                      {eng.name} — {eng.role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Selected Engineer Profile Card */}
+              {(() => {
+                const cur = SUB_OFFICERS_LIST.find(o => o.id === selectedSubOfficerId) || SUB_OFFICERS_LIST[0];
+                return (
+                  <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs space-y-1">
+                    <div className="flex items-center justify-between font-bold text-emerald-300">
+                      <span>{cur.name} ({cur.id})</span>
+                      <span className="text-[10px] font-mono text-cyan-300">📞 +91 {cur.phone}</span>
+                    </div>
+                    <div className="text-[11px] text-slate-300 font-medium">
+                      Dept: {cur.department}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Zone: {cur.zone} • {cur.specialization}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Field Engineer Security Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={subOfficerPassword}
+                  onChange={(e) => setSubOfficerPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-white text-xs focus:outline-none focus:border-emerald-400 transition"
+                />
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Mobile Number for Citizen or Admin */}
+          {activeTab !== 'sub_officer' && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Mobile Number (For Emergency Alerts & WhatsApp Dispatch)</span>
+                </span>
+                <span className="text-[10px] text-cyan-400 font-bold">10-Digit Mobile</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  required
+                  maxLength={10}
+                  value={activeTab === 'citizen' ? citizenPhone : adminPhone}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    if (activeTab === 'citizen') setCitizenPhone(val);
+                    else setAdminPhone(val);
+                  }}
+                  placeholder="Enter 10-digit mobile number"
+                  className="w-full pl-12 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-white font-mono text-xs tracking-wider focus:outline-none focus:border-cyan-400 transition"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Captcha Verification - STRICTLY MANUAL ENTRY */}
           <div>
@@ -367,12 +468,18 @@ export function LoginModal({
               className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition ${
                 activeTab === 'citizen'
                   ? 'bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-cyan-600/30 ring-1 ring-cyan-400/40'
-                  : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-indigo-600/30 ring-1 ring-indigo-400/40'
+                  : activeTab === 'admin'
+                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-indigo-600/30 ring-1 ring-indigo-400/40'
+                  : 'bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-600/30 ring-1 ring-emerald-400/40'
               }`}
             >
               <ArrowRight className="w-4 h-4" />
               <span>
-                {activeTab === 'citizen' ? 'Login to Citizen / User Portal' : 'Login to Officer / Admin Command'}
+                {activeTab === 'citizen' 
+                  ? 'Login to Citizen / User Portal' 
+                  : activeTab === 'admin' 
+                  ? 'Login to Officer / Admin Command' 
+                  : 'Login to Sub-Officer / Field Engineer Portal'}
               </span>
             </button>
 

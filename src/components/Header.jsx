@@ -222,14 +222,22 @@ export function Header({
             title="Switch Portal Mode"
           >
             <div className="w-6 h-6 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-300 font-bold text-xs border border-cyan-400/30">
-              {currentRole === 'admin' ? '🛡️' : '👤'}
+              {currentRole === 'admin' ? '🛡️' : currentRole === 'sub_officer' ? '👷' : '👤'}
             </div>
             <div className="text-left hidden sm:block">
               <div className="text-[11px] font-bold leading-tight">
-                {currentRole === 'admin' ? 'Admin Command' : currentUser?.name || 'Citizen'}
+                {currentRole === 'admin' 
+                  ? 'Admin Command' 
+                  : currentRole === 'sub_officer' 
+                  ? currentUser?.name || 'Field Engineer' 
+                  : currentUser?.name || 'Citizen'}
               </div>
               <div className="text-[9px] text-cyan-300 leading-tight">
-                {currentRole === 'admin' ? 'Click: Citizen View' : 'Click: Admin Portal'}
+                {currentRole === 'admin' 
+                  ? 'Click: Switch View' 
+                  : currentRole === 'sub_officer' 
+                  ? 'Sub-Officer Field Lead' 
+                  : 'Click: Admin Portal'}
               </div>
             </div>
           </button>

@@ -17,6 +17,7 @@ import {
   Save
 } from 'lucide-react';
 import { MUNICIPAL_DEPARTMENTS, STATUS_OPTIONS } from '../data/sampleIncidents';
+import { SUB_OFFICERS_LIST } from '../data/resourcesData';
 import { playDispatchPing } from '../utils/soundEffects';
 
 export function ApplicationManageModal({
@@ -28,14 +29,6 @@ export function ApplicationManageModal({
 }) {
   if (!isOpen || !incident) return null;
 
-  const SUB_OFFICERS = [
-    { name: 'Inspector Ramesh K', role: 'Zone Ingress Commander (Traffic & Police)', phone: '9448012345' },
-    { name: 'Sudeep M', role: 'BBMP Junior Engineer (Stormwater Drains)', phone: '9448067890' },
-    { name: 'Commander Vignesh', role: 'NDRF 10th Battalion Tactical Flood Chief', phone: '9845011223' },
-    { name: 'Dr. Priya Nair', role: 'Chief Health & Emergency Triage Officer', phone: '9845099887' },
-    { name: 'Girish Gowda', role: 'BESCOM Senior Power & Safety Engineer', phone: '9845044556' }
-  ];
-
   const DISPATCHABLE_RESOURCES = [
     { id: 'ambulance', label: '🚑 Critical Care Ambulance (108 Triage Unit)' },
     { id: 'boat', label: '🚤 NDRF Tactical Inflatable Rescue Boat' },
@@ -46,14 +39,16 @@ export function ApplicationManageModal({
     { id: 'volunteers', label: '🦺 Civic Rapid Disaster Volunteer Squad (15 Personnel)' }
   ];
 
+  const defaultSubOfficer = SUB_OFFICERS_LIST[0].name;
+
   const [currentStatus, setCurrentStatus] = useState(incident.status || 'Assigned');
   const [assignedDept, setAssignedDept] = useState(incident.assignedDepartment || MUNICIPAL_DEPARTMENTS[0]);
-  const [subOfficer, setSubOfficer] = useState(incident.assignedSubOfficer || 'Sudeep M');
+  const [subOfficer, setSubOfficer] = useState(incident.assignedSubOfficer || defaultSubOfficer);
   const [selectedResources, setSelectedResources] = useState(incident.dispatchedResources || [
     '💧 High-Capacity Dewatering Sludge Pump (50 HP)',
     '🚑 Critical Care Ambulance (108 Triage Unit)'
   ]);
-  const [fieldOfficer, setFieldOfficer] = useState(incident.assignedOfficer || 'Sudeep (Junior Engineer)');
+  const [fieldOfficer, setFieldOfficer] = useState(incident.assignedOfficer || defaultSubOfficer);
   const [progressNote, setProgressNote] = useState(incident.officerProgressNote || '');
   const [consolidatedLink, setConsolidatedLink] = useState(incident.consolidatedIncident || 'Unlinked');
   const [workProofPreview, setWorkProofPreview] = useState(null);
@@ -64,17 +59,57 @@ export function ApplicationManageModal({
     if (incident) {
       setCurrentStatus(incident.status || 'Assigned');
       setAssignedDept(incident.assignedDepartment || MUNICIPAL_DEPARTMENTS[0]);
-      setSubOfficer(incident.assignedSubOfficer || 'Sudeep M');
+      setSubOfficer(incident.assignedSubOfficer || defaultSubOfficer);
       setSelectedResources(incident.dispatchedResources || [
         '💧 High-Capacity Dewatering Sludge Pump (50 HP)',
         '🚑 Critical Care Ambulance (108 Triage Unit)'
       ]);
-      setFieldOfficer(incident.assignedOfficer || 'Sudeep (Junior Engineer)');
+      setFieldOfficer(incident.assignedOfficer || defaultSubOfficer);
       setProgressNote(incident.officerProgressNote || '');
       setConsolidatedLink(incident.consolidatedIncident || 'Unlinked');
       setTimeline(incident.timeline || []);
     }
   }, [incident]);
+
+  // 1-Click Approve Requisition from Field Engineer
+  const handleApproveRequisition = () => {
+    playDispatchPing();
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const requested = incident.resourceRequisition?.resources || [];
+    const merged = Array.from(new Set([...selectedResources, ...requested]));
+    setSelectedResources(merged);
+
+    const updatedRequisition = {
+      ...incident.resourceRequisition,
+      status: 'Approved & Dispatched by Admin',
+      approvedAt: nowTime
+    };
+
+    const newNote = `Admin Command authorized & dispatched tactical resource requisition (${requested.length} units) requested by Sub-Officer ${incident.resourceRequisition?.requestedBy || subOfficer}.`;
+    setProgressNote(newNote);
+
+    const updatedTimeline = (timeline || []).map(step => {
+      if (step.step === 'Assigned' || step.step === 'In Progress') {
+        return {
+          ...step,
+          note: `${step.note || ''} [Resource Requisition Authorized by Admin Hub]`
+        };
+      }
+      return step;
+    });
+
+    const updated = {
+      ...incident,
+      resourceRequisition: updatedRequisition,
+      dispatchedResources: merged,
+      officerProgressNote: newNote,
+      timeline: updatedTimeline
+    };
+
+    onUpdateIncident(updated);
+    setIsCommitted(true);
+    setTimeout(() => setIsCommitted(false), 3000);
+  };
 
   const toggleResource = (resourceLabel) => {
     if (selectedResources.includes(resourceLabel)) {
@@ -319,6 +354,70 @@ export function ApplicationManageModal({
 
           {/* RIGHT COLUMN: Administrative Actions & Status Progression (Screenshot 5) */}
           <div className="space-y-4">
+
+            {/* LIVE SUB-OFFICER FIELD REQUISITION & URGENT MEASURES ALERT */}
+            {incident.resourceRequisition && (
+              <div className="p-4 rounded-xl border border-rose-500/40 bg-gradient-to-r from-rose-950/40 via-slate-900 to-amber-950/30 space-y-3 shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+                    <span className="text-xs font-black uppercase text-rose-300 tracking-wider">
+                      🚨 Field Requisition from Sub-Officer
+                    </span>
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    incident.resourceRequisition.status?.includes('Approved')
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse'
+                  }`}>
+                    {incident.resourceRequisition.status || 'Pending Admin Approval'}
+                  </span>
+                </div>
+
+                <div className="text-xs text-slate-300 space-y-0.5">
+                  <div>Officer: <strong className="text-white">{incident.resourceRequisition.requestedBy}</strong> ({incident.resourceRequisition.officerDept})</div>
+                  <div>Phone: <span className="font-mono text-cyan-300">📞 {incident.resourceRequisition.officerPhone}</span> • Time: <span className="font-mono text-slate-400">{incident.resourceRequisition.timestamp}</span></div>
+                </div>
+
+                {/* Requested Resources */}
+                <div>
+                  <div className="text-[11px] font-bold text-slate-300 mb-1">
+                    Requested Tactical Fleet Resources:
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(incident.resourceRequisition.resources || []).map((res, i) => (
+                      <span key={i} className="px-2 py-1 rounded-lg bg-slate-950 border border-rose-400/30 text-[11px] text-rose-200 font-semibold shadow-sm">
+                        {res}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Urgent Measures */}
+                {incident.resourceRequisition.urgentMeasures && (
+                  <div className="p-2.5 rounded-lg bg-slate-950/80 border border-white/10 text-xs">
+                    <div className="text-[10px] uppercase font-bold text-amber-400 mb-0.5">
+                      ⚠️ Urgent Field Safety Measures:
+                    </div>
+                    <p className="text-slate-200 italic">
+                      "{incident.resourceRequisition.urgentMeasures}"
+                    </p>
+                  </div>
+                )}
+
+                {/* 1-Click Admin Approval Button */}
+                {incident.resourceRequisition.status !== 'Approved & Dispatched by Admin' && (
+                  <button
+                    type="button"
+                    onClick={handleApproveRequisition}
+                    className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30 transition active:scale-[0.99]"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Authorize & Approve Fleet Dispatch to Sub-Officer</span>
+                  </button>
+                )}
+              </div>
+            )}
             
             <form onSubmit={handleCommitUpdate} className="p-4 rounded-xl bg-slate-900/90 border border-blue-500/30 space-y-3.5">
               <div className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -358,19 +457,33 @@ export function ApplicationManageModal({
                 </select>
               </div>
 
-              {/* Assign Responsible Sub-Officer (Required by Admin) */}
+              {/* Assign Responsible Sub-Officer (First-Come, First-Served Protocol) */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
                   <span>Assign Sub-Officer (Operations & Resource Lead) *</span>
                   <span className="text-[10px] text-cyan-400 font-bold">Field Commander</span>
                 </label>
+
+                {incident.claimedBy ? (
+                  <div className="mb-2 p-2 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-[11px] text-emerald-300 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+                    <span>
+                      <strong>FCFS Claimed:</strong> {incident.claimedBy} accepted duty responsibility at {incident.claimedAt || 'Dispatch'}.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="mb-2 p-2 rounded-lg bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-300 flex items-center gap-1.5">
+                    <span>⚡ Open for Sub-Officer FCFS Claim or direct Admin assignment below.</span>
+                  </div>
+                )}
+
                 <select
                   value={subOfficer}
                   onChange={(e) => setSubOfficer(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-cyan-500/30 text-cyan-200 text-xs font-bold focus:outline-none focus:border-cyan-400 transition"
                 >
-                  {SUB_OFFICERS.map(so => (
-                    <option key={so.name} value={so.name} className="bg-slate-900 text-white">
+                  {SUB_OFFICERS_LIST.map(so => (
+                    <option key={so.id} value={so.name} className="bg-slate-900 text-white">
                       {so.name} — {so.role} (📞 {so.phone})
                     </option>
                   ))}

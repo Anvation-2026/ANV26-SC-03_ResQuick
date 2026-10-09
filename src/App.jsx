@@ -13,6 +13,7 @@ import { HelplinesModal } from './components/HelplinesModal';
 import { QuickerChatbot } from './components/QuickerChatbot';
 import { ApplicationManageModal } from './components/ApplicationManageModal';
 import { GovtReportModal } from './components/GovtReportModal';
+import { SubOfficerPortal } from './components/SubOfficerPortal';
 
 import { INITIAL_ZONES, ESCALATION_ZONE_C } from './data/zonesData';
 import { INITIAL_INCIDENTS } from './data/sampleIncidents';
@@ -77,6 +78,10 @@ export function App() {
     }
   );
 
+  const [currentSubOfficer, setCurrentSubOfficer] = useState(
+    initialSession?.currentSubOfficer || null
+  );
+
   // Language state (In Citizen Portal: preferred language, defaults to English 'en'; in Admin: English only)
   const [currentLanguage, setCurrentLanguage] = useState(initialSession?.currentLanguage || 'en');
 
@@ -105,12 +110,13 @@ export function App() {
         currentRole,
         currentUser,
         currentOfficer,
+        currentSubOfficer,
         currentLanguage
       }));
     } else {
       localStorage.removeItem('resquick_session');
     }
-  }, [isLoggedIn, currentRole, currentUser, currentOfficer, currentLanguage]);
+  }, [isLoggedIn, currentRole, currentUser, currentOfficer, currentSubOfficer, currentLanguage]);
 
   // Disaster Zones and Escalation Simulation State
   const [isEscalated, setIsEscalated] = useState(false);
@@ -344,6 +350,10 @@ export function App() {
       setCurrentRole('citizen');
       setCurrentUser(userData);
       if (userData.language) setCurrentLanguage(userData.language);
+    } else if (userData.role === 'sub_officer') {
+      setCurrentRole('sub_officer');
+      setCurrentSubOfficer(userData);
+      setCurrentLanguage('en'); // Field Engineer portal is English
     } else {
       setCurrentRole('admin');
       setCurrentOfficer(userData);
@@ -355,17 +365,21 @@ export function App() {
   // Sign out back to Login Page
   const handleSignOut = () => {
     setIsLoggedIn(false);
-    setLoginModalDefaultTab(currentRole);
+    setLoginModalDefaultTab(currentRole === 'sub_officer' ? 'sub_officer' : currentRole);
     playDispatchPing();
   };
 
-  // Switch between citizen & admin views: REQUIRES AUTHENTICATION!
+  // Switch between citizen & admin/sub-officer views: REQUIRES AUTHENTICATION!
   const handleSwitchPortal = () => {
     if (currentRole === 'citizen') {
       // Switching to Admin requires Admin authentication! Cannot auto-switch.
       setIsLoggedIn(false);
       setLoginModalDefaultTab('admin');
       setIsLoginModalOpen(true);
+    } else if (currentRole === 'sub_officer') {
+      // From sub-officer back to citizen
+      setCurrentRole('citizen');
+      setCurrentLanguage(currentUser.language || 'en');
     } else {
       // From admin back to citizen
       setCurrentRole('citizen');
@@ -425,8 +439,14 @@ export function App() {
           {/* Universal Top Navigation Header */}
           <Header
             currentRole={currentRole}
-            currentUser={currentRole === 'citizen' ? currentUser : currentOfficer}
-            currentLanguage={currentRole === 'admin' ? 'en' : currentLanguage}
+            currentUser={
+              currentRole === 'citizen'
+                ? currentUser
+                : currentRole === 'sub_officer'
+                ? currentSubOfficer
+                : currentOfficer
+            }
+            currentLanguage={currentRole === 'admin' || currentRole === 'sub_officer' ? 'en' : currentLanguage}
             onLanguageChange={setCurrentLanguage}
             currentTheme={currentTheme}
             onThemeChange={setCurrentTheme}
@@ -443,7 +463,7 @@ export function App() {
             unreadCount={isEscalated ? 5 : 3}
           />
 
-          {/* Primary Portal View (Citizen vs Admin) */}
+          {/* Primary Portal View (Citizen vs Sub-Officer vs Admin) */}
           <div className="flex-1">
             {currentRole === 'citizen' ? (
               <CitizenPortal
@@ -461,6 +481,24 @@ export function App() {
                 onViewIncidentDetails={(inc) => {
                   setSelectedTrackId(inc.id);
                   setIsTrackModalOpen(true);
+                }}
+                onSwitchToAdmin={() => {
+                  setIsLoggedIn(false);
+                  setLoginModalDefaultTab('admin');
+                  setIsLoginModalOpen(true);
+                }}
+              />
+            ) : currentRole === 'sub_officer' ? (
+              <SubOfficerPortal
+                currentOfficer={currentSubOfficer}
+                incidents={incidents}
+                zones={zones}
+                isEscalated={isEscalated}
+                onUpdateIncident={handleUpdateIncident}
+                onOpenHelplinesModal={() => setIsHelplinesModalOpen(true)}
+                onSwitchToCitizen={() => {
+                  setCurrentRole('citizen');
+                  setCurrentLanguage(currentUser.language || 'en');
                 }}
                 onSwitchToAdmin={() => {
                   setIsLoggedIn(false);

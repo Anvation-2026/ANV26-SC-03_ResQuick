@@ -17,6 +17,7 @@ import {
   FileQuestion
 } from 'lucide-react';
 import { TRANSLATIONS } from '../data/translations';
+import { SUB_OFFICERS_LIST } from '../data/resourcesData';
 
 export function TrackStatusModal({
   isOpen,
@@ -293,22 +294,29 @@ export function TrackStatusModal({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div className="p-3 rounded-lg bg-slate-950/70 border border-white/10 space-y-1">
-                  <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-                    Responsible Sub-Officer (Resource Lead)
-                  </div>
-                  <div className="text-sm font-black text-white flex items-center gap-2">
-                    <User className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>{currentInc.assignedSubOfficer || 'Sudeep M'}</span>
-                  </div>
-                  <div className="text-[11px] text-cyan-300 font-mono flex items-center gap-1">
-                    <PhoneCall className="w-3 h-3 text-cyan-400" />
-                    <span>Direct Helpline: 9448067890</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    BBMP Junior Engineer (Stormwater Drains)
-                  </div>
-                </div>
+                {(() => {
+                  const matchedSubOfficer = SUB_OFFICERS_LIST.find(
+                    o => o.name.toLowerCase().trim() === (currentInc.assignedSubOfficer || '').toLowerCase().trim()
+                  );
+                  return (
+                    <div className="p-3 rounded-lg bg-slate-950/70 border border-white/10 space-y-1">
+                      <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                        Responsible Sub-Officer (Resource Lead)
+                      </div>
+                      <div className="text-sm font-black text-white flex items-center gap-2">
+                        <User className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>{currentInc.assignedSubOfficer || 'Er. Sudeep M'}</span>
+                      </div>
+                      <div className="text-[11px] text-cyan-300 font-mono flex items-center gap-1">
+                        <PhoneCall className="w-3 h-3 text-cyan-400" />
+                        <span>Direct Helpline: {matchedSubOfficer?.phone || currentInc.assignedOfficerPhone || '9448067890'}</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {matchedSubOfficer?.role || 'Junior Engineer (Stormwater Drains & Roads)'}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 <div className="p-3 rounded-lg bg-slate-950/70 border border-white/10 space-y-1">
                   <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">

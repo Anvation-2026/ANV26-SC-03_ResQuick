@@ -80,3 +80,53 @@ export const MUNICIPAL_DEPARTMENTS = [
   'Metropolitan Transport Corporation (BMTC)',
   'Smart City Operations Center'
 ];
+
+// Pre-configured 5 Sub-Officers / Field Engineers for login & duty assignment
+export const SUB_OFFICERS_LIST = [
+  {
+    id: 'ENG-01',
+    name: 'Er. Sudeep M',
+    role: 'Junior Engineer (Stormwater Drains & Roads)',
+    department: 'Road Maintenance & Traffic Department',
+    phone: '9448067890',
+    zone: 'Anekal & East Lake Basin',
+    specialization: 'Culvert breaches, pothole craters & road fracture stabilization'
+  },
+  {
+    id: 'ENG-02',
+    name: 'Er. Manjunath R',
+    role: 'Superintending Engineer (Structural & Debris)',
+    department: 'Disaster Management & Emergency Services',
+    phone: '9845012389',
+    zone: 'Hebbal & North Outer Ring Corridor',
+    specialization: 'Flyover debris collapse, structural shoring & heavy machinery'
+  },
+  {
+    id: 'ENG-03',
+    name: 'Er. Kavitha Rao',
+    role: 'Assistant Executive Engineer (Flood Tactical Lead)',
+    department: 'Disaster Management & Emergency Services',
+    phone: '9449823456',
+    zone: 'Indiranagar & Halasuru Central Basin',
+    specialization: 'Severe flood de-watering, hospital lifeline bypass & boat rescue'
+  },
+  {
+    id: 'ENG-04',
+    name: 'Er. Rajesh Gowda',
+    role: 'Assistant Engineer (Water Supply & Drainage)',
+    department: 'Water Supply & Sewerage Board (BWSSB)',
+    phone: '9900145678',
+    zone: 'Bellandur & Yamalur Wetland Belt',
+    specialization: 'Sewage drain breaches, water contamination & high-capacity pumping'
+  },
+  {
+    id: 'ENG-05',
+    name: 'Er. Priya Sharma',
+    role: 'Emergency Electrical Grid Inspector',
+    department: 'Electrical & Streetlight Division (BESCOM)',
+    phone: '9844078901',
+    zone: 'Shivajinagar & Central Metro Corridor',
+    specialization: 'Transformer fires, 11kV line isolation & emergency power routing'
+  }
+];
+

@@ -25,7 +25,8 @@ import {
   Users,
   Clock,
   Eye,
-  RefreshCw
+  RefreshCw,
+  HardHat
 } from 'lucide-react';
 import { RiskMap } from './RiskMap';
 import { WeatherForecastWidget } from './WeatherForecastWidget';
@@ -474,6 +475,25 @@ export function AdminPortal({
               </select>
             </div>
 
+            {/* Sub-Officer FCFS Claim Status Summary Bar */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 pb-1 text-xs">
+              <span className="px-2.5 py-1 rounded-lg bg-blue-950/60 border border-blue-500/30 text-blue-300 font-bold flex items-center gap-1.5 text-[11px]">
+                <HardHat className="w-3.5 h-3.5 text-blue-400" />
+                <span>Field Engineer FCFS Protocol:</span>
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 font-mono text-[11px] font-bold">
+                ✓ {incidents.filter(i => i.assignedSubOfficer && i.assignedSubOfficer !== 'Unassigned').length} Claimed
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-amber-950/80 border border-amber-500/30 text-amber-300 font-mono text-[11px] font-bold">
+                ⚡ {incidents.filter(i => !i.assignedSubOfficer || i.assignedSubOfficer === 'Unassigned').length} Open for Claim
+              </span>
+              {incidents.some(i => i.resourceRequisition && !i.resourceRequisition.status?.includes('Approved')) && (
+                <span className="px-2.5 py-1 rounded-lg bg-rose-950/80 border border-rose-500/40 text-rose-300 font-mono text-[11px] font-bold animate-pulse">
+                  🚨 {incidents.filter(i => i.resourceRequisition && !i.resourceRequisition.status?.includes('Approved')).length} Resource Requests Pending
+                </span>
+              )}
+            </div>
+
             {/* Applications Table (Screenshot 5) */}
             <div className="overflow-x-auto rounded-xl border border-white/10">
               <table className="w-full text-left text-xs">
@@ -484,7 +504,7 @@ export function AdminPortal({
                     <th className="py-3 px-3">ISSUE & DOMAIN</th>
                     <th className="py-3 px-3 whitespace-nowrap text-center">SEVERITY</th>
                     <th className="py-3 px-3 whitespace-nowrap text-center">STATUS</th>
-                    <th className="py-3 px-3 whitespace-nowrap">CONSOLIDATED INCIDENT</th>
+                    <th className="py-3 px-3 whitespace-nowrap">SUB-OFFICER / FCFS CLAIM</th>
                     <th className="py-3 px-3 whitespace-nowrap text-right">ACTION</th>
                   </tr>
                 </thead>
@@ -556,8 +576,42 @@ export function AdminPortal({
                             {inc.status}
                           </span>
                         </td>
-                        <td className="py-3.5 px-3 text-slate-400 text-xs whitespace-nowrap">
-                          {inc.consolidatedIncident || 'Unlinked'}
+                        <td className="py-3.5 px-3">
+                          {inc.assignedSubOfficer && inc.assignedSubOfficer !== 'Unassigned' ? (
+                            <div className="space-y-1">
+                              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                                <span>Claimed: {inc.assignedSubOfficer}</span>
+                              </div>
+                              {inc.claimedAt && (
+                                <span className="block text-[9px] text-slate-400 font-mono">
+                                  FCFS at {inc.claimedAt}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 whitespace-nowrap">
+                              <span>⚡ Open for Claim (FCFS)</span>
+                            </span>
+                          )}
+
+                          {inc.resourceRequisition && (
+                            <div className="mt-1">
+                              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold whitespace-nowrap ${
+                                inc.resourceRequisition.status?.includes('Approved')
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                  : 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                              }`}>
+                                <span>🚨 {inc.resourceRequisition.resources?.length || 0} Fleet Units Req</span>
+                              </span>
+                            </div>
+                          )}
+
+                          {inc.consolidatedIncident && inc.consolidatedIncident !== 'Unlinked' && (
+                            <span className="block text-[9px] text-slate-500 font-mono mt-0.5">
+                              Linked: {inc.consolidatedIncident}
+                            </span>
+                          )}
                         </td>
                         <td className="py-3.5 px-3 text-right">
                           <div className="flex items-center justify-end gap-2">
